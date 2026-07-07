@@ -16,17 +16,30 @@ class PatientTapApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Optional deep-link hook (used for demos/screenshots), e.g.
+    // `?screen=patient|responder|log`. Harmless when absent.
+    final screen = Uri.base.queryParameters['screen'];
+    final startResponder = screen == 'responder' || screen == 'log';
+    final onboardingDone = screen == 'patient' || startResponder;
+    final initialMode = startResponder ? AppMode.responder : AppMode.patient;
+    final responderTab = screen == 'log' ? 2 : (screen == 'responder' ? 1 : 0);
+
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AppState()),
+        ChangeNotifierProvider(
+          create: (_) =>
+              AppState(onboardingComplete: onboardingDone, mode: initialMode),
+        ),
         ChangeNotifierProvider(create: (_) => PatientController()),
-        ChangeNotifierProvider(create: (_) => ResponderController()),
+        ChangeNotifierProvider(
+          create: (_) => ResponderController(seedScanned: startResponder),
+        ),
       ],
       child: MaterialApp(
         title: 'Patient-Tap',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
-        home: const _AppRoot(),
+        home: _AppRoot(responderInitialTab: responderTab),
       ),
     );
   }
@@ -36,7 +49,9 @@ class PatientTapApp extends StatelessWidget {
 /// MaterialApp `home`, flipping the role here re-parents the whole UI without
 /// a restart — the persistent [RoleSwitch] just toggles [AppState.mode].
 class _AppRoot extends StatelessWidget {
-  const _AppRoot();
+  const _AppRoot({this.responderInitialTab = 0});
+
+  final int responderInitialTab;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +63,7 @@ class _AppRoot extends StatelessWidget {
     } else if (app.isPatient) {
       surface = const PatientShell();
     } else {
-      surface = const ResponderShell();
+      surface = ResponderShell(initialIndex: responderInitialTab);
     }
 
     return AnimatedSwitcher(

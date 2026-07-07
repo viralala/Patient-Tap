@@ -14,14 +14,16 @@ import 'treatment_log_screen.dart';
 /// Log). Auto-switches to Record on a successful scan and surfaces the
 /// non-blocking "emergency contact alerted" toast.
 class ResponderShell extends StatefulWidget {
-  const ResponderShell({super.key});
+  const ResponderShell({super.key, this.initialIndex = 0});
+
+  final int initialIndex;
 
   @override
   State<ResponderShell> createState() => _ResponderShellState();
 }
 
 class _ResponderShellState extends State<ResponderShell> {
-  int _index = 0;
+  late int _index = widget.initialIndex;
   ResponderController? _controller;
   ScanStatus _prevScan = ScanStatus.idle;
 

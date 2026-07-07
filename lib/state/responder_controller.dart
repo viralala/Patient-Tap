@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
@@ -32,10 +33,19 @@ class ResponderController extends ChangeNotifier {
     NfcService? nfc,
     AlertService? alert,
     BackendService? backend,
+    bool seedScanned = false,
   })  : _crypto = crypto ?? const CryptoService(),
         _nfc = nfc ?? NfcService(),
         _alert = alert ?? const AlertService(),
-        _backend = backend ?? const BackendService();
+        _backend = backend ?? const BackendService() {
+    if (seedScanned) {
+      // Demo/screenshot hook: start with a patient already scanned in.
+      final demo = MockData.scannedPatient();
+      _profile = demo;
+      _rawBytes = Uint8List.fromList(utf8.encode(jsonEncode(demo.toMap())));
+      _scanStatus = ScanStatus.success;
+    }
+  }
 
   final CryptoService _crypto;
   final NfcService _nfc;

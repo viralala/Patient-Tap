@@ -8,8 +8,12 @@ enum AppMode { patient, responder }
 /// The role is a toggle, not a permanent lock-in (see the app bar switch), so
 /// both shells stay reachable at runtime without restarting.
 class AppState extends ChangeNotifier {
-  bool _onboardingComplete = false;
-  AppMode _mode = AppMode.patient;
+  AppState({bool onboardingComplete = false, AppMode mode = AppMode.patient})
+      : _onboardingComplete = onboardingComplete,
+        _mode = mode;
+
+  bool _onboardingComplete;
+  AppMode _mode;
 
   bool get onboardingComplete => _onboardingComplete;
   AppMode get mode => _mode;
