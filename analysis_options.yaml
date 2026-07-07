@@ -1,0 +1,12 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    avoid_print: false # allowed for stubbed services' debug logging
+
+analyzer:
+  errors:
+    # Keep the hackathon build unblocked; tighten later.
+    todo: ignore
