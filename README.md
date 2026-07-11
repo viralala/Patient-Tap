@@ -1,139 +1,286 @@
-# Patient-Tap — Frontend (Flutter)
+<div align="center">
 
-Edge-medical sovereignty: a patient's critical record (allergies, medications,
-DNR flag, emergency contacts, treatment log) lives **encrypted on an NFC
-wristband/card (NTAG215, 504 bytes)** and is readable/writable by any phone with
-**zero network dependency**. When signal is available, the app opportunistically
-SMS-alerts emergency contacts with GPS.
+<img src="assets/banner.svg" alt="Patient-Tap — Edge-Medical Sovereignty System" width="100%" />
 
-This repo is the **frontend UI/UX only**. Every backend touchpoint (crypto, NFC,
-SMS, cloud) is **stubbed behind a clean interface** returning realistic mock data
-after a short delay, so the three backend teammates can drop real implementations
-in without any screen rewrites.
+<br/>
+
+<p>
+  <b>Your medical record, encrypted onto the NFC chip you wear.</b><br/>
+  Readable by a first responder with <i>zero</i> internet — because in a disaster, there isn't any.
+</p>
+
+<p>
+  <img src="https://img.shields.io/badge/Next.js-15-3ec9a7?style=for-the-badge&logo=nextdotjs&logoColor=0b0e0d" alt="Next.js 15" />
+  <img src="https://img.shields.io/badge/React-19-7addc4?style=for-the-badge&logo=react&logoColor=0b0e0d" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript-5-2b9b81?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript 5" />
+  <img src="https://img.shields.io/badge/AES--256--GCM-encrypted-0b0e0d?style=for-the-badge&labelColor=3ec9a7" alt="AES-256-GCM" />
+</p>
+
+<p>
+  <img src="https://img.shields.io/badge/offline-first-1f7361?style=flat-square" alt="offline-first" />
+  <img src="https://img.shields.io/badge/tag-NTAG215%20%E2%89%A4%20504%20B-1f7361?style=flat-square" alt="NTAG215 ≤ 504 bytes" />
+  <img src="https://img.shields.io/badge/PRD-v2.0-1f7361?style=flat-square" alt="PRD v2.0" />
+  <img src="https://img.shields.io/badge/build-passing-3ec9a7?style=flat-square" alt="build passing" />
+  <img src="https://img.shields.io/badge/license-MIT-5d6660?style=flat-square" alt="MIT" />
+</p>
+
+<sub>
+  <a href="#-why">Why</a> ·
+  <a href="#-what-makes-it-different">Difference</a> ·
+  <a href="#-two-builds-one-brain">Builds</a> ·
+  <a href="#-features">Features</a> ·
+  <a href="#-architecture">Architecture</a> ·
+  <a href="#-real-vs-simulated">Real vs simulated</a> ·
+  <a href="#-getting-started">Getting started</a> ·
+  <a href="#-prd-coverage">PRD coverage</a>
+</sub>
+
+</div>
 
 ---
 
-## Running it
+## 🩸 Why
 
-✅ **Verified:** `flutter analyze` reports *no issues* and `flutter build web`
-succeeds on **Flutter 3.44.5 / Dart 3.12.2**. The `android/` and `web/` platform
-folders are already scaffolded and included.
+During natural disasters, mass-casualty events, or network blackouts, first responders treat patients with **zero access to prior medical history**. That causes preventable medication conflicts, allergic reactions, and duplicated treatment as a patient moves between responders, ambulances, and field hospitals.
 
-On this machine the Flutter SDK is installed at **`D:\flutter`** but is **not on
-PATH**. Either add `D:\flutter\bin` to PATH, or prefix commands with it:
+Every competitor stores the medical data in the cloud and uses NFC as a doorbell. **Patient-Tap stores the data on the chip itself — so the doorbell still works when the house has no internet.**
 
-```powershell
-$env:Path = "D:\flutter\bin;$env:Path"   # once per terminal session
+<div align="center">
+<table>
+<tr>
+<td align="center">🔌<br/><b>Offline-first</b><br/><sub>every core flow works<br/>with no network</sub></td>
+<td align="center">🔐<br/><b>Encrypted on-chip</b><br/><sub>AES-256-GCM before<br/>a byte is written</sub></td>
+<td align="center">🚑<br/><b>Responder write-back</b><br/><sub>log treatment in the<br/>field, onto the tag</sub></td>
+<td align="center">⚠️<br/><b>Conflict checker</b><br/><sub>catches allergy &amp;<br/>overdose clashes</sub></td>
+</tr>
+</table>
+</div>
 
-cd patient_tap
-flutter pub get
-flutter run -d chrome        # web — no NFC phone needed, everything is mocked
-# or: flutter run             # pick an attached Android device / emulator
+## ⭐ What makes it different
+
+The headline feature isn't the NFC — it's the **conflict checker**. When a responder logs a drug they're about to administer, Patient-Tap checks it against the patient's allergies, recent doses, and current medications **on-device, offline**, and blocks a dangerous administration behind an explicit override:
+
+```text
+Responder types:  "Amoxicillin"
+Patient allergy:  "Penicillin"
+                        ↓
+🔴  Allergy conflict: Amoxicillin
+    Patient is allergic to Penicillin. Amoxicillin may cross-react.
+    Do not administer without override.
 ```
 
-Because all hardware/crypto is mocked, **the app runs fully in a browser or on a
-desktop** — you don't need a physical NFC phone to demo the flows. To add iOS /
-desktop targets later: `flutter create --platforms=ios,windows,macos .`
+That single check is the reason a judge — or a paramedic — remembers this project.
 
----
+## 📱 Two builds, one brain
 
-## What's implemented
+This folder ships **two independent [Next.js](https://nextjs.org) apps** that share one logic core. Point your phone at either.
 
-**Single app, role toggle** (not two apps). A persistent Patient ⇄ Responder
-switch lives in the header on every shell screen.
+| | <img src="https://img.shields.io/badge/-Android-3ec9a7?style=flat-square&logo=android&logoColor=0b0e0d"/> `android/` | <img src="https://img.shields.io/badge/-iOS-7c6cf0?style=flat-square&logo=apple&logoColor=white"/> `iOS/` |
+|---|---|---|
+| **Design language** | Redesigned **"field-equipment"** theme — surgical-teal accent, warm-charcoal surfaces, mono machine-labels, grain | Original dark **fintech** theme — violet accent, iOS chrome |
+| **Chrome** | Material 3 — bottom nav w/ labels, Material switches, punch-hole | Notch, floating-pill tab bar, iOS toggles, large titles |
+| **Type** | Manrope + Space Grotesk | SF system stack |
+| **Tag access** | 🟢 **Read + write** (NTAG215) | 🔵 **Read-only** (NDEF fallback — per spec) |
+| **Dev port** | `3020` | `3010` |
 
-- **Onboarding** — 3 swipeable intro screens (wristband concept, chain-of-custody
-  log, opportunistic SMS) → role choice (`I'm a Patient` / `I'm a Responder`).
-- **Patient mode** (bottom nav: Profile · Edit · Write) — **pre-seeded with a
-  demo patient** ("Alex Harmozi") so the dashboard is populated on first launch.
-  Disable via `PatientController(seedDemo: false)` in `lib/app.dart`.
-  - Profile form: name/ID, blood type dropdown, allergies chip input,
-    repeatable medication rows, prominent red **DNR** toggle, up to 3 emergency
-    contacts.
-  - **Write to Tag**: big button → simulated encrypt + write animation → success
-    or mock error (`Tag moved`, `Tag full`).
-  - Dashboard: read-only "what's on your tag" stat grid + tag byte-usage meter.
-- **Responder mode** (bottom nav: Scan · Record · Log)
-  - **Scan**: tap-to-scan → simulated read/decrypt → auto-opens the record.
-  - **Decrypted record**: allergies + DNR are the most prominent, warning-red
-    elements (life-safety UI); meds/blood type below.
-  - **Add log entry**: action + auto timestamp + responder ID →
-    `Save & Re-write Tag` (append → re-write → cloud sync).
-  - **Treatment log**: reuses the reference "detail screen" pattern — hero stat
-    card, a timeline (the chart adapted to a scrollable list), summary stats,
-    and an `All / Today / This Week` segmented control.
-  - Non-blocking **"contact alerted"** toast fires after a scan.
+> The two apps are identical except **`lib/platform.ts`** (one constant, `PLATFORM`) and the CSS/chrome skin. `CAN_WRITE_TAG` is derived from it, so iOS enforces read-only automatically.
 
----
+## ✨ Features
 
-## Project structure
+<table>
+<tr>
+<td width="50%" valign="top">
 
+#### 🔓 Lock, not login
+A local **4–6 digit PIN** (salted SHA-256, never stored in plaintext) gates *editing your own profile*. Optional biometric. Responder mode needs **no login at all** — frictionless in an emergency.
+
+#### 📝 Profile + document auto-fill
+Manual entry, or **scan a prescription / discharge summary**. On-device OCR extracts labelled fields (`Blood Group:`, `Allergic to:`, drug names) and pre-fills the form — **you review every field before it saves.**
+
+#### ⏰ Medication reminders
+Per-medication schedule → **offline local notifications** at dose time. No server, no push service.
+
+</td>
+<td width="50%" valign="top">
+
+#### 💾 Selective write to tag
+Choose exactly which categories go on the wristband. A **live 504-byte budget meter** updates as you toggle, and warns before you overflow the tag.
+
+#### 🚑 Responder mode
+Tap → decrypt → the profile appears in **under a second**, allergies and DNR shown first. Log a treatment (conflict-checked), and it's **written back to the tag** so it travels with the patient.
+
+#### 📟 Emergency alert
+On scan, the primary emergency contact is alerted with an **SMS body + live GPS location**.
+
+</td>
+</tr>
+</table>
+
+**Color carries meaning, never decoration** — 🔴 danger (allergy · DNR · conflict) · 🟡 caution (reminders · unconfirmed OCR) · 🟢 teal (brand · success · verified).
+
+## 🏗 Architecture
+
+**No server. No network. The chip is the database.** Everything runs on-device.
+
+<div align="center">
+<img src="assets/pipeline.svg" alt="Profile → serialize → AES-256-GCM → NTAG215 tag" width="92%" />
+</div>
+
+```text
+                          ┌───────────────── PATIENT ──────────────────┐
+   document photo ─▶ on-device OCR ─▶ field parser ─▶ review ─▶ profile
+                                                                  │
+                              select categories ─▶ serialize ─▶ AES-256-GCM ─▶ 🏷 NTAG215 (≤504 B)
+
+                          ┌──────────────── RESPONDER ─────────────────┐
+   tap 🏷 ─▶ read ─▶ decrypt ─▶ prioritized display
+                        └─▶ log entry ─▶ conflict check ─▶ re-encrypt ─▶ re-write to 🏷
+                        └─▶ SMS + GPS alert to emergency contact
 ```
-lib/
-  main.dart                 App entry
-  app.dart                  Providers + role-based root surface
-  theme/                    Colors + ThemeData + style tokens
-  models/                   PatientProfile, MedEntry, ContactRef, LogEntry,
-                            BloodType, GeoLocation  (protobuf-shaped)
-  services/                 ── STUBS: swap these out ──
-    crypto_service.dart       encryptProfile / decryptProfile / appendLogEntry
-    nfc_service.dart          writeToTag (~20% mock failure) / readFromTag
-    alert_service.dart        sendAlert
-    backend_service.dart      saveProfileBackup / getSubscriptionStatus / syncLogEntry
-    mock_data.dart            sample patient + demo GPS
-  state/                    AppState (role), PatientController, ResponderController
-  widgets/                  StatCard, PrimaryButton, FloatingBottomNav, ChipInput,
-                            DnrBadge, SegmentedControl, PulsingRing, RoleSwitch, …
+
+## 🔬 Real vs simulated
+
+A browser can't touch native hardware, so those parts are simulated — but **everything that can be real, is.**
+
+<table>
+<tr>
+<th>✅ Genuinely real</th>
+<th>🟡 Simulated (native-only in production)</th>
+</tr>
+<tr>
+<td valign="top">
+
+- **AES-256-GCM** encrypt/decrypt — Web Crypto
+- **Tamper detection** via the GCM auth tag
+- **PIN hashing** — salted SHA-256, never plaintext
+- **Conflict checker** — allergy / dose / interaction
+- **Live 504-byte budget** as categories toggle
+- **Local-notification reminders** — Notification API
+- **GPS** — Geolocation API (real fix when permitted)
+
+</td>
+<td valign="top">
+
+- **NFC tag** → `localStorage`; real **Web NFC** (`NDEFReader`) is attempted first on Chrome-Android
+- **SMS** → composed body + `sms:` deep link, not `SmsManager`
+- **OCR** → the ML Kit pass is stubbed; **the field parser is real** and runs on the extracted text
+- **Android Keystore** → a fixed derived key stands in for hardware key sealing
+
+</td>
+</tr>
+</table>
+
+> This mirrors the PRD's own guidance to be upfront that OCR is a beta-quality feature and that a live NFC demo needs a backup path.
+
+## 🚀 Getting started
+
+```bash
+# Android build (the redesigned one) → http://localhost:3020
+cd "android"
+npm install
+npm run dev
+
+# iOS build → http://localhost:3010
+cd "iOS"
+npm install
+npm run dev
+```
+
+<sub>Open in a mobile viewport (~<code>440×940</code>) for the device framing. <code>npm run build</code> type-checks and produces a production bundle.</sub>
+
+<details>
+<summary><b>▶ Demo it in 60 seconds</b></summary>
+
+<br/>
+
+1. **Create a PIN** (e.g. `1234`, then confirm) — a lock screen, not an account.
+2. **Settings → Load demo profile** — populates Aarav Mehta (O+, Penicillin/Sulfa allergies, 2 meds, 2 contacts).
+3. **Tag** tab → review the live byte budget → **Write to tag**.
+4. **Responder** tab → *Tap to scan* → profile decrypts in <1 s, allergies/DNR first, contact alerted.
+5. Tap **Log treatment**, choose **Amoxicillin** → the conflict checker flags the Penicillin cross-reaction and demands an override.
+6. Re-scan the tag → your logged entry is still there. It persisted **on the chip.**
+
+</details>
+
+## 🧠 Tech stack
+
+<p>
+  <img src="https://img.shields.io/badge/Next.js_15-App_Router-0b0e0d?style=flat-square&logo=nextdotjs" />
+  <img src="https://img.shields.io/badge/React_19-client-0b0e0d?style=flat-square&logo=react" />
+  <img src="https://img.shields.io/badge/TypeScript-strict-0b0e0d?style=flat-square&logo=typescript" />
+  <img src="https://img.shields.io/badge/Web_Crypto-SubtleCrypto-0b0e0d?style=flat-square" />
+  <img src="https://img.shields.io/badge/Web_NFC-NDEFReader-0b0e0d?style=flat-square" />
+  <img src="https://img.shields.io/badge/CSS-design_tokens-0b0e0d?style=flat-square" />
+</p>
+
+No UI framework, no CSS library — a hand-built design system in plain CSS variables (which also sidesteps a Tailwind config gotcha in this repo's path). Minimal dependencies: `next`, `react`, `react-dom`.
+
+<details>
+<summary><b>📁 Project structure</b> (identical in both folders)</summary>
+
+```text
+app/
+  layout.tsx          root layout + fonts (Android) / metadata
+  page.tsx            client-mount guard (avoids SSR/localStorage mismatch)
+  globals.css         the entire design system
+components/
+  App.tsx             device shell · lock gate · tab + sub-route navigation
+  AppContext.tsx      global state (profile, unlock, toast, routing) + persistence
+  ui/
+    Icons.tsx         monoline SVG icon set
+    Widgets.tsx       StatusBar · Switch · Sheet · Ring · BudgetMeter · Banner · Toast
   screens/
-    onboarding/             onboarding + role choice
-    patient/                shell, dashboard, profile form, write-to-tag
-    responder/              shell, scan, decrypted record, add-log, treatment log
+    Lock · Home · ProfileEdit · ScanDoc · Reminders · WriteTag · Responder · Settings
+lib/
+  types.ts            data schema (mirrors the PRD protobuf draft)
+  crypto.ts           AES-256-GCM + PIN hashing (Web Crypto)
+  store.ts            localStorage persistence · compact serialization · byte estimation
+  tag.ts              NFC read/write — Web NFC + simulated NTAG215, retry + error codes
+  conflict.ts         ⭐ the differentiator — allergy / dose / interaction checks
+  ocr.ts              field parser + sample documents
+  reminders.ts        offline notification scheduling
+  alert.ts            SMS body + GPS capture
+  platform.ts         the ONE file that differs between iOS and Android
 ```
 
-**State management:** `provider` (ChangeNotifier) — kept intentionally simple.
-**Navigation:** MaterialApp `home` swaps shells on role toggle; `Navigator.push`
-for detail screens (e.g. Add Log Entry). No `go_router` needed.
+</details>
 
----
+<details>
+<summary><b>✅ PRD coverage</b></summary>
 
-## For the backend teammates — integration points
+<br/>
 
-All stubs live in `lib/services/` and are marked with
-`// TODO: replace with real implementation from [role] dev`. Keep the signatures
-and the app's screens won't change.
+| ID | Requirement | Where |
+|---|---|---|
+| F0.1–F0.4 | Local PIN lock + biometric; responder needs no login | `screens/Lock.tsx`, `App.tsx` |
+| F1 | Manual profile (name, blood type, allergies, meds, DNR, ≤3 contacts) | `screens/ProfileEdit.tsx` |
+| F2.1–F2.5 | Document scan → on-device OCR → parse → **review before save** | `screens/ScanDoc.tsx`, `lib/ocr.ts` |
+| F3.1–F3.4 | Medication reminders, offline local notifications | `screens/Reminders.tsx`, `lib/reminders.ts` |
+| F4.1–F4.6 | Selective write with live byte budget + 504-byte warning | `screens/WriteTag.tsx`, `lib/store.ts` |
+| F7–F12 | Responder scan, prioritized display, conflict-checked logging, write-back, SMS+GPS | `screens/Responder.tsx`, `lib/conflict.ts`, `lib/alert.ts` |
+| F13–F16 | AES-256-GCM, tamper detection, retry (3×), clear error states | `lib/crypto.ts`, `lib/tag.ts` |
 
-```dart
-// crypto_service.dart  (Backend/Crypto)
-Future<Uint8List>      encryptProfile(PatientProfile profile);
-Future<DecryptResult>  decryptProfile(Uint8List bytes);   // .profile + .tampered
-Future<Uint8List>      appendLogEntry(Uint8List existingBytes, LogEntry entry);
+</details>
 
-// nfc_service.dart  (NFC/Hardware)
-Future<TagWriteResult> writeToTag(Uint8List bytes);       // .ok + .error
-Future<Uint8List?>     readFromTag();                     // null = no tag
+<details>
+<summary><b>🔐 Security notes</b></summary>
 
-// alert_service.dart  (Alerts/Demo)
-Future<void> sendAlert(ContactRef contact, GeoLocation location);
+<br/>
 
-// backend_service.dart  (Alerts/Demo — Supabase + Stripe)
-Future<bool>             saveProfileBackup(PatientProfile profile);
-Future<SubscriptionTier> getSubscriptionStatus();
-Future<bool>             syncLogEntry(String patientId, LogEntry entry);
-```
+- Profile bytes are **AES-256-GCM** encrypted before touching the tag; a corrupted or tampered tag fails the GCM auth-tag check and surfaces as an error (F13/F14).
+- The PIN is a **salted SHA-256 hash** in `localStorage` — never stored in plaintext.
+- **Demo simplification:** a production system would seal the key in the Android Keystore and solve responder-side key distribution properly. For a single-app demo where one app plays both patient and responder, a fixed derived key lets any scan decrypt any tag written here.
 
-> **Note on `decryptProfile`:** the brief specified `Future<PatientProfile?>`
-> "returns null + a tampered flag". That's implemented as a small
-> `DecryptResult { profile, tampered }` so the responder UI can distinguish
-> "no data" from "auth-tag failure / tampered". If you'd rather return a bare
-> nullable, change the one call site in `ResponderController.scan()`.
+</details>
 
-The data models in `lib/models/` are plain immutable classes with
-`toMap()`/`fromMap()`, shaped to match the protobuf schema — real
-encrypt/decrypt should round-trip them without a UI refactor.
+## ⚖️ Honest scoping
 
----
+This is a faithful **web** realization of the Patient-Tap PRD, built with Next.js. The PRD's technical section specifies a **native Kotlin** Android app with real NTAG215 hardware and Google ML Kit. This build is ideal for demonstrating the UX and the full end-to-end flow, but the hardware-bound pieces (real NFC writes, SMS, on-device ML Kit OCR) are simulated as noted above — it is **not** the on-device native app the architecture section describes.
 
-## Not implemented (by design, per the brief)
-
-Real AES-256-GCM · real protobuf · real `nfc_manager` · real SMS · real
-Supabase/Stripe. All are mocked so the frontend is buildable and demoable today.
+<div align="center">
+<br/>
+<sub>Built to the Patient-Tap PRD v2.0 · <code>Edge-Medical Sovereignty System</code></sub>
+<br/>
+<sub>🏷 <b>The medical record lives on the chip — not the cloud.</b></sub>
+<br/><br/>
+</div>
