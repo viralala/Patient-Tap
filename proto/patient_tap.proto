@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package patienttap;
+
+// Blood type enum. Values/order are stable and mirror lib/models/blood_type.dart
+// so BloodType.values[index] round-trips directly against the wire enum.
+enum BloodType {
+  UNKNOWN = 0;
+  A_POS = 1;
+  A_NEG = 2;
+  B_POS = 3;
+  B_NEG = 4;
+  AB_POS = 5;
+  AB_NEG = 6;
+  O_POS = 7;
+  O_NEG = 8;
+}
+
+// Mirrors lib/models/med_entry.dart
+message MedEntry {
+  string name = 1;
+  string dose = 2;
+  string frequency = 3;
+}
+
+// Mirrors lib/models/contact_ref.dart
+message ContactRef {
+  string name = 1;
+  string phone = 2;
+  string relation = 3;
+}
+
+// Mirrors lib/models/log_entry.dart
+// timestamp stored as unix seconds (int64) instead of an ISO-8601 string to
+// save bytes on the wire (matters once this payload has to fit in the
+// 504-byte NTAG215 budget in Phase 2).
+message LogEntry {
+  int64 timestamp_unix = 1;
+  string responder_id = 2;
+  string action = 3;
+}
+
+// Mirrors lib/models/patient_profile.dart — the top-level record that will be
+// serialized, then (Phase 2) AES-256-GCM encrypted and written to the tag.
+message PatientProfile {
+  string patient_id = 1;
+  string name = 2;
+  BloodType blood_type = 3;
+  repeated string allergies = 4;
+  repeated MedEntry medications = 5;
+  bool dnr = 6;
+  repeated ContactRef emergency_contacts = 7;
+  repeated LogEntry treatment_log = 8;
+  int64 updated_at_unix = 9;
+}
+
+// Mirrors lib/models/geo_location.dart. Standalone (not nested inside
+// PatientProfile) — matches current usage, which is only for outgoing SMS
+// alerts (alert_service.dart), not for anything stored on the tag.
+message GeoLocation {
+  double latitude = 1;
+  double longitude = 2;
+  double accuracy_meters = 3;
+  int64 captured_at_unix = 4;
+}
+
+// NOTE: This schema is the source of truth. Real `.pb.dart` classes should be
+// regenerated from this file with `protoc` + `protoc_plugin` on a machine
+// that has the protobuf compiler installed:
+//
+//   protoc --dart_out=lib/models/proto proto/patient_tap.proto
+//
+// Until then, lib/models/proto/patient_profile.pb.dart contains hand-written
+// classes that implement this exact wire format byte-for-byte, so swapping in
+// real generated code later is a drop-in file replacement.

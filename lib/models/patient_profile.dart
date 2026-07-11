@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'blood_type.dart';
 import 'contact_ref.dart';
 import 'log_entry.dart';
 import 'med_entry.dart';
+import 'proto/patient_profile.pb.dart';
 
 /// The full patient record that lives (encrypted) on the NFC tag.
 ///
@@ -102,4 +105,60 @@ class PatientProfile {
         patientId: '',
         name: '',
       );
+
+  /// Converts this profile into the protobuf-shaped message tree (see
+  /// proto/patient_tap.proto). Intermediate step used by [toProtoBytes];
+  /// exposed separately in case a caller needs the message graph without
+  /// serializing it (e.g. for size inspection before encryption).
+  PatientProfileMessage toProtoMessage() => PatientProfileMessage(
+        patientId: patientId,
+        name: name,
+        bloodType: bloodType.toProtoValue,
+        allergies: allergies,
+        medications: medications.map((m) => m.toProtoMessage()).toList(),
+        dnr: dnr,
+        emergencyContacts:
+            emergencyContacts.map((c) => c.toProtoMessage()).toList(),
+        treatmentLog: treatmentLog.map((l) => l.toProtoMessage()).toList(),
+        updatedAtUnix: updatedAt == null
+            ? 0
+            : updatedAt!.toUtc().millisecondsSinceEpoch ~/ 1000,
+      );
+
+  /// Reconstructs a [PatientProfile] from the protobuf-shaped message tree.
+  factory PatientProfile.fromProtoMessage(PatientProfileMessage m) {
+    return PatientProfile(
+      patientId: m.patientId,
+      name: m.name,
+      bloodType: BloodType.fromProtoValue(m.bloodType),
+      allergies: m.allergies,
+      medications:
+          m.medications.map((e) => MedEntry.fromProtoMessage(e)).toList(),
+      dnr: m.dnr,
+      emergencyContacts: m.emergencyContacts
+          .map((e) => ContactRef.fromProtoMessage(e))
+          .toList(),
+      treatmentLog:
+          m.treatmentLog.map((e) => LogEntry.fromProtoMessage(e)).toList(),
+      updatedAt: m.updatedAtUnix == 0
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(
+              m.updatedAtUnix * 1000,
+              isUtc: true,
+            ).toLocal(),
+    );
+  }
+
+  /// Serializes this profile straight to protobuf wire-format bytes. This is
+  /// what `crypto_service.dart` calls before (Phase 2) AES-256-GCM
+  /// encryption, and it's the payload whose size must fit the NTAG215
+  /// 504-byte budget once the auth tag/nonce/wrapped-key overhead is added.
+  Uint8List toProtoBytes() => toProtoMessage().writeToBuffer();
+
+  /// Deserializes protobuf wire-format bytes back into a [PatientProfile].
+  /// Throws if [bytes] isn't valid wire format for this schema — callers
+  /// (e.g. `crypto_service.dart`) should catch that and treat it the same
+  /// way a JSON parse failure / GCM auth failure was treated before.
+  factory PatientProfile.fromProtoBytes(Uint8List bytes) =>
+      PatientProfile.fromProtoMessage(PatientProfileMessage.mergeFromBuffer(bytes));
 }

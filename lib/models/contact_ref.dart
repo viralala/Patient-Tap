@@ -1,3 +1,5 @@
+import 'proto/patient_profile.pb.dart';
+
 /// An emergency contact. Maps to the `ContactRef` protobuf message.
 ///
 /// Also used as the `Contact` argument for [alert_service.sendAlert].
@@ -30,5 +32,16 @@ class ContactRef {
         name: (map['name'] ?? '') as String,
         phone: (map['phone'] ?? '') as String,
         relation: (map['relation'] ?? '') as String,
+      );
+
+  /// Converts to the protobuf-shaped message (see proto/patient_tap.proto).
+  ContactRefMessage toProtoMessage() =>
+      ContactRefMessage(name: name, phone: phone, relation: relation);
+
+  /// Reconstructs a [ContactRef] from a protobuf-shaped message.
+  factory ContactRef.fromProtoMessage(ContactRefMessage m) => ContactRef(
+        name: m.name,
+        phone: m.phone,
+        relation: m.relation,
       );
 }

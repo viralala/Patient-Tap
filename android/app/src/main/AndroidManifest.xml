@@ -1,4 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Phase 3 (NFC Layer): required to read/write NFC tags via nfc_manager. -->
+    <uses-permission android:name="android.permission.NFC" />
+    <!-- required="false" so the app still installs on devices without NFC
+         hardware — NfcService.checkAvailability() handles that case at
+         runtime and surfaces TagWriteError.unavailable / a null read. -->
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
     <application
         android:label="patient_tap_shell"
         android:name="${applicationName}"

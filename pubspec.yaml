@@ -21,6 +21,15 @@ dependencies:
   # listed here only for clarity — Cupertino icons ship by default)
   cupertino_icons: ^1.0.8
 
+  # Phase 2 (Crypto Layer): AES-256-GCM authenticated encryption for the
+  # protobuf payload that gets written to / read from the NFC tag.
+  cryptography: ^2.7.0
+
+  # Phase 3 (NFC Layer): tag session handling (read/write) plus the NDEF
+  # abstraction used to store the encrypted payload on NTAG215 tags.
+  nfc_manager: ^4.2.1
+  nfc_manager_ndef: ^1.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

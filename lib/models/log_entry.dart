@@ -1,3 +1,5 @@
+import 'proto/patient_profile.pb.dart';
+
 /// A single treatment-log entry (chain-of-custody record). Maps to the
 /// `LogEntry` protobuf message.
 ///
@@ -38,5 +40,24 @@ class LogEntry {
                 DateTime.now(),
         responderId: (map['responderId'] ?? '') as String,
         action: (map['action'] ?? '') as String,
+      );
+
+  /// Converts to the protobuf-shaped message (see proto/patient_tap.proto).
+  /// Timestamp is encoded as unix seconds (int64), not an ISO string, to
+  /// save bytes on the wire.
+  LogEntryMessage toProtoMessage() => LogEntryMessage(
+        timestampUnix: timestamp.toUtc().millisecondsSinceEpoch ~/ 1000,
+        responderId: responderId,
+        action: action,
+      );
+
+  /// Reconstructs a [LogEntry] from a protobuf-shaped message.
+  factory LogEntry.fromProtoMessage(LogEntryMessage m) => LogEntry(
+        timestamp: DateTime.fromMillisecondsSinceEpoch(
+          m.timestampUnix * 1000,
+          isUtc: true,
+        ).toLocal(),
+        responderId: m.responderId,
+        action: m.action,
       );
 }

@@ -1,3 +1,5 @@
+import 'proto/patient_profile.pb.dart';
+
 /// A single medication row. Maps to the `MedEntry` protobuf message.
 ///
 /// Fields intentionally mirror the wire schema so Backend's real
@@ -37,4 +39,15 @@ class MedEntry {
   String get summary => [name, dose, frequency]
       .where((s) => s.trim().isNotEmpty)
       .join('  ·  ');
+
+  /// Converts to the protobuf-shaped message (see proto/patient_tap.proto).
+  MedEntryMessage toProtoMessage() =>
+      MedEntryMessage(name: name, dose: dose, frequency: frequency);
+
+  /// Reconstructs a [MedEntry] from a protobuf-shaped message.
+  factory MedEntry.fromProtoMessage(MedEntryMessage m) => MedEntry(
+        name: m.name,
+        dose: m.dose,
+        frequency: m.frequency,
+      );
 }

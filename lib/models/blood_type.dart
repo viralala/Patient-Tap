@@ -22,4 +22,19 @@ enum BloodType {
       orElse: () => BloodType.unknown,
     );
   }
+
+  /// Wire-format enum value (BloodTypeProto.*). Relies on [BloodType]'s
+  /// declaration order exactly matching the `BloodType` enum in
+  /// proto/patient_tap.proto (unknown=0 ... oNeg=8).
+  int get toProtoValue => index;
+
+  /// Reconstructs a [BloodType] from a protobuf enum value. Falls back to
+  /// [BloodType.unknown] for any out-of-range value (e.g. a newer wire
+  /// format written by a future app version).
+  static BloodType fromProtoValue(int value) {
+    if (value < 0 || value >= BloodType.values.length) {
+      return BloodType.unknown;
+    }
+    return BloodType.values[value];
+  }
 }
