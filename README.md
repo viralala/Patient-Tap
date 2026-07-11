@@ -123,7 +123,7 @@ On scan, the primary emergency contact is alerted with an **SMS body + live GPS 
 **No server. No network. The chip is the database.** Everything runs on-device.
 
 <div align="center">
-<img src="assets/pipeline.svg" alt="Profile → serialize → AES-256-GCM → NTAG215 tag" width="92%" />
+<img src="new app/assets/pipeline.svg" alt="Profile → serialize → AES-256-GCM → NTAG215 tag" width="92%" />
 </div>
 
 ```text
