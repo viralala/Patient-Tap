@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="new-app/assets/banner.svg" alt="Patient-Tap — Edge-Medical Sovereignty System" width="100%" />
+<img src="new app/assets/banner.svg" alt="Patient-Tap — Edge-Medical Sovereignty System" width="100%" />
 
 <br/>
 
