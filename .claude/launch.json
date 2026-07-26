@@ -1,0 +1,65 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "patient-tap-web",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5599",
+        "--directory",
+        "D:/Study SY/Codeamble `26/patient_tap/build/web"
+      ],
+      "port": 5599
+    },
+    {
+      "name": "next-web",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "patient_tap/frontend-web/node_modules/next/dist/bin/next",
+        "dev",
+        "patient_tap/frontend-web",
+        "-p",
+        "3000"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "next-prod",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "patient_tap/frontend-web/node_modules/next/dist/bin/next",
+        "start",
+        "patient_tap/frontend-web",
+        "-p",
+        "3001"
+      ],
+      "port": 3001
+    },
+    {
+      "name": "newapp-ios",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "new app/iOS/node_modules/next/dist/bin/next",
+        "dev",
+        "new app/iOS",
+        "-p",
+        "3010"
+      ],
+      "port": 3010
+    },
+    {
+      "name": "newapp-android",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "new app/android/node_modules/next/dist/bin/next",
+        "dev",
+        "new app/android",
+        "-p",
+        "3020"
+      ],
+      "port": 3020
+    }
+  ]
+}

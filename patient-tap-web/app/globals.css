@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------------------------------------------------------- */
+/* Base                                                                       */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  --paper: #f5f6fb;
+  --ink: #0a0e17;
+  --royal: #2f5fe0;
+  --shell-pad: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+* {
+  border-color: theme("colors.paper.line");
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: auto; /* Lenis owns smooth scrolling */
+}
+
+body {
+  background: var(--paper);
+  color: theme("colors.ink.DEFAULT");
+  font-family: theme("fontFamily.sans");
+  overflow-x: hidden;
+}
+
+::selection {
+  background: theme("colors.royal.500");
+  color: #fff;
+}
+
+/* Custom cursor: hide the native one only on precise-pointer devices. */
+body.cursor-custom,
+body.cursor-custom * {
+  cursor: none !important;
+}
+@media (hover: none), (pointer: coarse) {
+  body.cursor-custom,
+  body.cursor-custom * {
+    cursor: auto !important;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: theme("colors.ink.line");
+  border-radius: 999px;
+}
+.on-ink ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Typography helpers                                                         */
+/* -------------------------------------------------------------------------- */
+
+.font-display {
+  font-family: theme("fontFamily.display");
+  letter-spacing: -0.02em;
+}
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+}
+.text-balance {
+  text-wrap: balance;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Layout                                                                     */
+/* -------------------------------------------------------------------------- */
+
+.shell {
+  width: 100%;
+  max-width: theme("maxWidth.shell");
+  margin-inline: auto;
+  padding-inline: var(--shell-pad);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Ambient surfaces                                                           */
+/* -------------------------------------------------------------------------- */
+
+/* Fine film grain overlay for the dark cinematic chapters. */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 8s steps(4) infinite;
+}
+
+/* Royal-blue radial glow, for hero + CTA backdrops. */
+.glow-royal {
+  background:
+    radial-gradient(60% 55% at 50% 12%, rgba(47, 95, 224, 0.42), transparent 70%),
+    radial-gradient(40% 40% at 82% 78%, rgba(47, 95, 224, 0.18), transparent 72%);
+}
+
+/* Fine dotted grid used behind dark sections. */
+.grid-fade {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 40%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(70% 70% at 50% 40%, #000 30%, transparent 100%);
+}
+
+/* Frosted glass card (nav pill, floating chips). */
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.glass-light {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+/* Reveal primitive — GSAP flips these to visible; no-JS fallback keeps them shown. */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  will-change: transform, opacity;
+}
+.no-js .reveal {
+  opacity: 1;
+  transform: none;
+}
+
+/* App screen transition on tab change. */
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.screen-in {
+  animation: screen-in 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Soft raised card shadow tuned for the off-white paper base. */
+.card-shadow {
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 12px 30px -12px rgba(16, 24, 40, 0.14);
+}
+.card-shadow-lg {
+  box-shadow:
+    0 2px 4px rgba(16, 24, 40, 0.05),
+    0 30px 60px -22px rgba(23, 33, 66, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

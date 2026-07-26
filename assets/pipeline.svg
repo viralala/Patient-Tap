@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 220" width="1000" height="220" fill="none" role="img" aria-label="Data pipeline: profile to protobuf to AES-256-GCM to NTAG215 tag">
+  <defs>
+    <clipPath id="f"><rect width="1000" height="220" rx="16"/></clipPath>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+  <g clip-path="url(#f)" font-family="'Segoe UI', Helvetica, Arial, sans-serif">
+    <rect width="1000" height="220" fill="#0b0e0d"/>
+    <rect x="1" y="1" width="998" height="218" rx="15" fill="none" stroke="#1e2723" stroke-width="2"/>
+
+    <!-- connecting track -->
+    <line x1="150" y1="110" x2="850" y2="110" stroke="#1c2420" stroke-width="2"/>
+
+    <!-- animated packet travelling the whole track -->
+    <circle r="6" fill="#3ec9a7" filter="url(#soft)">
+      <animate attributeName="cx" values="150;850" dur="3.2s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.65 0 0.35 1"/>
+      <animate attributeName="cy" values="110;110" dur="3.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.1;0.5;0.9;1" dur="3.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="3.5" fill="#dffef5">
+      <animate attributeName="cx" values="150;850" dur="3.2s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.65 0 0.35 1"/>
+      <animate attributeName="cy" values="110;110" dur="3.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.1;0.5;0.9;1" dur="3.2s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Node 1: Profile -->
+    <g transform="translate(60 70)">
+      <rect width="120" height="80" rx="14" fill="#141816" stroke="#264a40"/>
+      <g transform="translate(60 30)" stroke="#3ec9a7" stroke-width="2.4" fill="none" stroke-linecap="round">
+        <circle cx="0" cy="-6" r="7"/>
+        <path d="M-12 12 a12 12 0 0 1 24 0"/>
+      </g>
+      <text x="60" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="#98a29c">Profile</text>
+    </g>
+
+    <!-- Node 2: Serialize -->
+    <g transform="translate(290 70)">
+      <rect width="120" height="80" rx="14" fill="#141816" stroke="#264a40"/>
+      <text x="60" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#3ec9a7" font-family="'SFMono-Regular', Consolas, monospace">{ }</text>
+      <text x="60" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="#98a29c">Serialize</text>
+    </g>
+
+    <!-- Node 3: AES-256-GCM (lock) -->
+    <g transform="translate(520 70)">
+      <rect width="120" height="80" rx="14" fill="#12211c" stroke="#3ec9a7"/>
+      <g transform="translate(60 28)" stroke="#3ec9a7" stroke-width="2.6" fill="none" stroke-linecap="round">
+        <rect x="-11" y="-2" width="22" height="16" rx="3" fill="#12211c"/>
+        <path d="M-6 -2 v-5 a6 6 0 0 1 12 0 v5">
+          <animate attributeName="d" values="M-6 -2 v-9 a6 6 0 0 1 12 0 v9; M-6 -2 v-5 a6 6 0 0 1 12 0 v5; M-6 -2 v-5 a6 6 0 0 1 12 0 v5" keyTimes="0;0.3;1" dur="3.2s" repeatCount="indefinite"/>
+        </path>
+      </g>
+      <text x="60" y="66" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3ec9a7" font-family="'SFMono-Regular', Consolas, monospace">AES-256-GCM</text>
+    </g>
+
+    <!-- Node 4: NTAG215 -->
+    <g transform="translate(820 70)">
+      <rect width="120" height="80" rx="14" fill="#141816" stroke="#264a40"/>
+      <g transform="translate(60 30)" fill="none" stroke="#3ec9a7" stroke-width="2.4" stroke-linecap="round">
+        <path d="M-16 -8 a20 20 0 0 1 0 16"/>
+        <path d="M-8 -13 a30 30 0 0 1 0 26"/>
+        <circle cx="6" cy="0" r="3" fill="#3ec9a7" stroke="none">
+          <animate attributeName="opacity" values="1;0.3;1" dur="1.6s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+      <text x="60" y="66" text-anchor="middle" font-size="12" font-weight="600" fill="#98a29c">NTAG215 · ≤504B</text>
+    </g>
+
+    <!-- caption -->
+    <text x="500" y="200" text-anchor="middle" font-family="'SFMono-Regular', Consolas, monospace" font-size="12" letter-spacing="2" fill="#5d6660">NO SERVER · NO NETWORK · THE CHIP IS THE DATABASE</text>
+  </g>
+</svg>
