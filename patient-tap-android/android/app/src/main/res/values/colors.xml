@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors C.background in lib/theme/tokens.dart so the launch window,
+         the Flutter surface and the system bars are one continuous colour. -->
+    <color name="patientTapBackground">#0C0F0E</color>
+</resources>

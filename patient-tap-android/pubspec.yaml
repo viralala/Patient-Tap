@@ -1,0 +1,84 @@
+name: patient_tap
+description: "Patient-Tap — offline-first NFC emergency medical identity (Android)."
+publish_to: "none"
+version: 2.0.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ---- State ----
+  provider: ^6.1.5
+
+  # ---- Local persistence (stands in for the web build's localStorage) ----
+  shared_preferences: ^2.5.5
+
+  # ---- Real cryptography ----
+  cryptography: ^2.9.0 # AES-256-GCM (mirrors Web Crypto SubtleCrypto)
+  crypto: ^3.0.7 # SHA-256 salted PIN hashing
+
+  # ---- Backend: Supabase (auth + Postgres + Edge Functions) ----
+  supabase_flutter: ^2.16.0
+  google_sign_in: ^7.2.0 # native Google account picker -> Supabase idToken
+
+  # ---- Real NFC: NTAG215 NDEF read + write ----
+  nfc_manager: ^4.2.1
+  nfc_manager_ndef: ^1.1.0
+  ndef_record: ^1.4.2
+
+  # ---- Payments ----
+  razorpay_flutter: ^1.4.5
+
+  # ---- Offline medication reminders ----
+  flutter_local_notifications: ^22.2.0
+  timezone: ^0.11.1
+  flutter_timezone: ^5.1.0
+
+  # ---- Emergency alert: GPS + SMS/dialer/maps hand-off ----
+  geolocator: ^14.0.3
+  url_launcher: ^6.3.2
+
+  # ---- Security ----
+  local_auth: ^3.0.2 # real fingerprint / face unlock
+
+  # ---- Document auto-fill: real on-device OCR ----
+  google_mlkit_text_recognition: ^0.16.0
+  image_picker: ^1.2.3
+
+  # ---- Misc ----
+  share_plus: ^13.3.0
+  intl: ^0.20.3
+  flutter_svg: ^2.3.0 # renders the design system's monoline icon set 1:1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+# ---------------------------------------------------------------------------
+# path_provider_android 2.3.x switched its implementation to `jni`, which drags
+# in a CMake/NDK build step. The Android Gradle Plugin refuses any CMake build
+# whose path contains a backtick ("argument had embedded tick-mark"), and this
+# repository lives under "Codeamble `26". 2.2.23 is the last release that uses
+# plain platform channels, so it builds here and is functionally identical for
+# everything we use it for (temp/documents directories).
+# Drop this override if the project ever moves to a plain path.
+# ---------------------------------------------------------------------------
+dependency_overrides:
+  path_provider_android: 2.2.23
+
+flutter:
+  uses-material-design: true
+
+  # Variable fonts (wght axis). Bundled, not fetched — keeps the offline-first
+  # promise intact. Weight is applied through FontVariation in lib/theme/type.dart.
+  fonts:
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-Variable.ttf
+    - family: SpaceGrotesk
+      fonts:
+        - asset: assets/fonts/SpaceGrotesk-Variable.ttf
