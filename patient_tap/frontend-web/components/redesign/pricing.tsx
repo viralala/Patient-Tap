@@ -114,10 +114,10 @@ export function Pricing() {
           <div className="s4-card">
             <PricingCard
               label="Premium"
-              price={yearly ? "₹899" : "₹999"}
-              period="/mo"
+              price={yearly ? "₹499" : "₹4999"}
+              period="/yr"
               caption={billed}
-              tagline="For families who want the full picture."
+              tagline="For individuals who want the full picture."
               features={[
                 "Multiple tags per patient",
                 "Full log history + push alerts",
@@ -132,11 +132,11 @@ export function Pricing() {
           </div>
           <div className="s4-card">
             <PricingCard
-              label="For teams"
-              price={yearly ? "₹1,799" : "₹1,999"}
-              period="/mo"
+              label="For families of 4 "
+              price={yearly ? "₹1799" : "₹1,999"}
+              period="/yr"
               caption={billed}
-              tagline="For schools, events & EMS fleets."
+              tagline="For families, schools, events & EMS fleets."
               features={[
                 "Bulk tags in one order",
                 "Team dashboard + audit log",
