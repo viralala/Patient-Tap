@@ -34,13 +34,13 @@ export const site = {
   },
 
   contact: {
-    email: "hello@patienttap.io",
-    privacyEmail: "privacy@patienttap.io",
-    securityEmail: "security@patienttap.io",
+    email: "hello@patient-tap.shop",
+    privacyEmail: "privacy@patient-tap.shop",
+    securityEmail: "security@patient-tap.shop",
     /** Grievance Officer under the IT Rules 2021 / DPDP Act 2023. */
     grievanceOfficer: {
       name: "Viral Dhoka",
-      email: "grievance@patienttap.io",
+      email: "grievance@patient-tap.shop",
       responseTime: "within 7 days of receipt; resolved within 30 days",
     },
   },
