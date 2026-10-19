@@ -48,7 +48,7 @@ export function DnrToggle({
       >
         <span
           className={cn(
-            "absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform",
+            "absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform",
             value ? "translate-x-6" : "translate-x-1",
           )}
         />

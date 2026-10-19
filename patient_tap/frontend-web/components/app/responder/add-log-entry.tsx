@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Nfc, ClipboardPlus, ScanLine } from "lucide-react";
+import { Nfc, ScanLine } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import type { LogEntry } from "@/lib/models";
 import {

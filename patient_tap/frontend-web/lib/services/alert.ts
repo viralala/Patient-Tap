@@ -23,7 +23,6 @@ export async function sendAlert(
 ): Promise<void> {
   // TODO(alerts/demo): real connectivity check + SMS gateway.
   await sleep(LATENCY);
-  // eslint-disable-next-line no-console
   console.info(
     `[alert] (mock) SMS -> ${contact.name} <${contact.phone}> @ ${geoPretty(location)}`,
   );

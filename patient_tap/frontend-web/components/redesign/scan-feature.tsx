@@ -48,6 +48,7 @@ export function ScanFeature() {
   return (
     <section id="responders" ref={root} className="relative overflow-hidden bg-void py-28 md:py-40">
       <Iridescence
+        parallax={16}
         blobs={[
           { color: "#9b5cff", size: 520, top: "12%", left: "8%", blur: 105 },
           { color: "#3b6dff", size: 480, top: "0%", left: "22%", blur: 100 },

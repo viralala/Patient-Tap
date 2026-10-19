@@ -42,11 +42,13 @@ export function Pricing() {
     { scope: root },
   );
 
-  const billed = yearly ? "billed yearly — save 10%" : "billed monthly";
+  // Yearly is the anchor price; monthly billing costs ~15% more over a year.
+  const billed = yearly ? "billed yearly — save 15%" : "billed monthly, cancel any time";
 
   return (
     <section id="pricing" ref={root} className="relative overflow-hidden bg-void py-28 md:py-40">
       <Iridescence
+        parallax={16}
         blobs={[
           { color: "#3b6dff", size: 520, top: "-6%", left: "20%", blur: 120, opacity: 0.5 },
           { color: "#9b5cff", size: 560, top: "-10%", left: "44%", blur: 120, opacity: 0.55 },
@@ -92,7 +94,7 @@ export function Pricing() {
             })}
           </div>
           <span className="rounded-full bg-signal/15 px-2.5 py-1 text-xs font-medium text-signal-soft">
-            Save 10%
+            Save 15%
           </span>
         </div>
 
@@ -104,8 +106,8 @@ export function Pricing() {
               price="₹0"
               caption="free forever"
               tagline="For one patient getting started."
-              features={["1 wristband tag", "Last 3 log entries", "SMS alerts only"]}
-              cta="Start free"
+              features={["1 tag, read & written offline", "Responder mode + last 3 log entries", "MedVerify medicine checks"]}
+              cta="Try it free"
               href="/app"
               background="bg-gradient-to-br from-[#3f74ff] to-[#243f9e]"
               BGComponent={BGComponent1}
@@ -114,17 +116,17 @@ export function Pricing() {
           <div className="s4-card">
             <PricingCard
               label="Premium"
-              price={yearly ? "₹499" : "₹4999"}
-              period="/yr"
+              price={yearly ? "₹499" : "₹49"}
+              period={yearly ? "/yr" : "/mo"}
               caption={billed}
               tagline="For individuals who want the full picture."
               features={[
                 "Multiple tags per patient",
-                "Full log history + push alerts",
-                "Family dashboard + location",
+                "Encrypted cloud backup + full log",
+                "Emergency SMS / email alerts with location",
               ]}
-              cta="Go Premium"
-              href="/app"
+              cta="Join the waitlist"
+              href="/#waitlist"
               featured
               background="bg-gradient-to-br from-[#9b5cff] to-[#5a2ea0]"
               BGComponent={BGComponent2}
@@ -132,18 +134,18 @@ export function Pricing() {
           </div>
           <div className="s4-card">
             <PricingCard
-              label="For families of 4 "
-              price={yearly ? "₹1799" : "₹1,999"}
-              period="/yr"
+              label="Family"
+              price={yearly ? "₹1,799" : "₹179"}
+              period={yearly ? "/yr" : "/mo"}
               caption={billed}
-              tagline="For families, schools, events & EMS fleets."
+              tagline="Up to 4 people, managed from one account."
               features={[
-                "Bulk tags in one order",
-                "Team dashboard + audit log",
-                "Priority onboarding",
+                "Everything in Premium, for 4 members",
+                "Guardian mode for kids & elders",
+                "Shared access log + alerts",
               ]}
-              cta="Book a call"
-              href="#"
+              cta="Join the waitlist"
+              href="/#waitlist"
               background="bg-gradient-to-br from-[#ff5cc4] to-[#a52572]"
               BGComponent={BGComponent3}
             />
@@ -159,22 +161,35 @@ export function Pricing() {
             <div>
               <p className="font-medium text-white">Just need the wristbands?</p>
               <p className="mt-0.5 text-sm text-white/55">
-                Buy NTAG215 tags outright via Stripe — a subscription is an
-                optional add-on.
+                Wristbands, cards and keychains ship blank — you write your own
+                encrypted record. Pre-orders open soon; no payment is taken yet.
               </p>
             </div>
           </div>
           <a
-            href="#"
+            href="/contact?topic=order"
             data-cursor="buy"
             className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-white py-3 pl-6 pr-3 text-sm font-medium text-neutral-900 transition-transform duration-300 hover:scale-[1.03]"
           >
-            Buy wristbands
+            Pre-order wristbands
             <span className="grid h-7 w-7 place-items-center rounded-full bg-neutral-900 text-white transition-transform duration-300 group-hover:translate-x-0.5">
               <ArrowRight className="h-4 w-4" />
             </span>
           </a>
         </div>
+
+        <p className="s4-reveal mx-auto mt-8 max-w-2xl text-center text-xs leading-relaxed text-white/40">
+          Schools, events, EMS fleets and hospitals: bulk tags and a team dashboard on custom terms —{" "}
+          <a href="/contact?topic=partnership" className="underline underline-offset-2 hover:text-white">
+            talk to us
+          </a>
+          . Prototype pricing in INR; payments are not live yet, and nothing here charges you. See
+          our{" "}
+          <a href="/refunds" className="underline underline-offset-2 hover:text-white">
+            refund policy
+          </a>
+          .
+        </p>
       </div>
     </section>
   );

@@ -43,6 +43,7 @@ export function BandChoice() {
     <section className="relative overflow-hidden bg-void py-28 md:py-40" ref={root}>
       <Iridescence
         animate={false}
+        parallax={16}
         blobs={[
           { color: "#ff5cc4", size: 500, top: "18%", left: "36%", blur: 120, opacity: 0.45 },
           { color: "#9b5cff", size: 520, top: "6%", left: "50%", blur: 120, opacity: 0.5 },

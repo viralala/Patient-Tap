@@ -77,6 +77,10 @@ export interface PatientProfile {
   allergies: string[];
   medications: MedEntry[];
   dnr: boolean; // Do-Not-Resuscitate flag (life-safety)
+  /** Registered voluntary blood donor (information only). */
+  bloodDonor?: boolean;
+  /** Pledged organ & tissue donor (information only — never affects care). */
+  organDonor?: boolean;
   emergencyContacts: ContactRef[];
   treatmentLog: LogEntry[]; // append-only chain of custody
   updatedAt?: Date;
@@ -99,6 +103,8 @@ export function emptyProfile(): PatientProfile {
     allergies: [],
     medications: [],
     dnr: false,
+    bloodDonor: false,
+    organDonor: false,
     emergencyContacts: [],
     treatmentLog: [],
   };
@@ -118,6 +124,8 @@ export function profileToMap(p: PatientProfile): Json {
     allergies: p.allergies,
     medications: p.medications.map((m) => ({ ...m })),
     dnr: p.dnr,
+    bloodDonor: Boolean(p.bloodDonor),
+    organDonor: Boolean(p.organDonor),
     emergencyContacts: p.emergencyContacts.map((c) => ({ ...c })),
     treatmentLog: p.treatmentLog.map((l) => ({
       timestamp: l.timestamp.toISOString(),
@@ -141,6 +149,8 @@ export function profileFromMap(map: Json): PatientProfile {
       frequency: m.frequency ?? "",
     })),
     dnr: Boolean(map.dnr),
+    bloodDonor: Boolean(map.bloodDonor),
+    organDonor: Boolean(map.organDonor),
     emergencyContacts: ((map.emergencyContacts as ContactRef[]) ?? []).map((c) => ({
       name: c.name ?? "",
       phone: c.phone ?? "",

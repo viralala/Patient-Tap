@@ -55,7 +55,7 @@ export const PricingCard = ({
       )}
 
       <div className="relative z-10 text-white">
-        <span className="mb-4 block w-fit rounded-full border border-white/25 bg-white/15 px-3 py-0.5 text-sm font-medium backdrop-blur-sm">
+        <span className="mb-4 block w-fit rounded-full border border-white/25 bg-white/15 px-3 py-0.5 text-sm font-medium backdrop-blur-xs">
           {label}
         </span>
 
@@ -85,7 +85,7 @@ export const PricingCard = ({
       <a
         href={href}
         data-cursor="open"
-        className="absolute inset-x-4 bottom-4 z-20 rounded-lg border-2 border-white bg-white py-2.5 text-center font-mono text-sm font-black uppercase text-neutral-900 transition-all duration-200 hover:bg-transparent hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+        className="absolute inset-x-4 bottom-4 z-20 rounded-lg border-2 border-white bg-white py-2.5 text-center font-mono text-sm font-black uppercase text-neutral-900 transition-all duration-200 hover:bg-transparent hover:text-white focus:outline-hidden focus:ring-2 focus:ring-white/60"
       >
         {cta}
       </a>

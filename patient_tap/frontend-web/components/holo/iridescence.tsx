@@ -2,10 +2,11 @@
 
 import { useRef } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { cn } from "@/lib/utils";
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export interface Blob {
   /** Any CSS color — the blob's core hue. */
@@ -32,20 +33,37 @@ export function Iridescence({
   blobs,
   className,
   animate = true,
+  parallax = 0,
 }: {
   blobs: Blob[];
   className?: string;
   /** When false, blobs render statically (saves rAF for lower-priority glows). */
   animate?: boolean;
+  /** Scroll parallax depth in % of the section height (0 = fixed to the section). */
+  parallax?: number;
 }) {
   const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
-      if (!animate) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const el = scope.current;
       if (!el) return;
+
+      // Depth: the glow layer drifts slower than the content scrolling over it.
+      if (parallax) {
+        gsap.fromTo(
+          el,
+          { yPercent: -parallax / 2 },
+          {
+            yPercent: parallax / 2,
+            ease: "none",
+            scrollTrigger: { trigger: el.parentElement, start: "top bottom", end: "bottom top", scrub: true },
+          },
+        );
+      }
+
+      if (!animate) return;
       // Scope the selector to this instance so nested/sibling Iridescence
       // components don't drive each other's blobs.
       const nodes = gsap.utils.toArray<HTMLElement>(".holo-blob", el);
@@ -70,7 +88,11 @@ export function Iridescence({
     <div
       ref={scope}
       aria-hidden
-      className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
+      className={cn(
+        "pointer-events-none absolute inset-0 overflow-hidden",
+        parallax ? "-inset-y-[12%]" : "",
+        className,
+      )}
     >
       {blobs.map((b, i) => (
         <span

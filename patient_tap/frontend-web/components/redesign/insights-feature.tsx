@@ -48,6 +48,7 @@ export function InsightsFeature() {
   return (
     <section id="insights" className="relative overflow-hidden bg-void py-28 md:py-40" ref={root}>
       <Iridescence
+        parallax={16}
         blobs={[
           { color: "#37e0f0", size: 480, top: "6%", left: "34%", blur: 115, opacity: 0.5 },
           { color: "#9b5cff", size: 540, top: "0%", left: "50%", blur: 120, opacity: 0.55 },

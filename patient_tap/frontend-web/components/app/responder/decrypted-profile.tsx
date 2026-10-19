@@ -10,6 +10,7 @@ import {
   ClipboardPlus,
   ScrollText,
   RotateCcw,
+  HeartHandshake,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { hasAllergies, medSummary, type ContactRef } from "@/lib/models";
@@ -143,6 +144,26 @@ export function DecryptedProfile({
           ))}
         </div>
       </div>
+
+      {/* donor status — informational, deliberately low-key */}
+      {(profile.bloodDonor || profile.organDonor) && (
+        <div className="mt-6">
+          <SectionLabel>Donor status</SectionLabel>
+          <Card className="flex items-start gap-3 p-3.5">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-royal-50 text-royal-600">
+              <HeartHandshake className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="text-sm font-medium text-ink">
+                {[profile.organDonor && "Pledged organ donor", profile.bloodDonor && "Blood donor"]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+              <p className="text-xs text-ink/45">For information only. Treat as normal.</p>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* contacts */}
       <div className="mt-6">
