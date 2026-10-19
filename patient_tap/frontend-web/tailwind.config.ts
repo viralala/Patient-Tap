@@ -1,16 +1,9 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  // `relative: true` resolves these globs against this config file's directory
-  // instead of process.cwd() — the dev server is launched from the repo root.
-  content: {
-    relative: true,
-    files: [
-      "./app/**/*.{ts,tsx}",
-      "./components/**/*.{ts,tsx}",
-      "./lib/**/*.{ts,tsx}",
-    ],
-  },
+  // Loaded from app/globals.css via `@config`; class sources are declared there
+  // with `@import "tailwindcss" source(...)`, so no `content` globs are needed.
+  content: [],
   theme: {
     extend: {
       colors: {

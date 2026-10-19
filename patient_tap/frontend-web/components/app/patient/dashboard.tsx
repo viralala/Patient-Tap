@@ -1,6 +1,6 @@
 "use client";
 
-import { Nfc, Pencil, Droplet, Pill, Users, ShieldAlert, Cloud } from "lucide-react";
+import { Nfc, Pencil, Droplet, Pill, Users, ShieldAlert, Cloud, HeartHandshake } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { hasAllergies, medSummary } from "@/lib/models";
 import { estimateEncodedBytes, TAG_CAPACITY_BYTES } from "@/lib/services";
@@ -65,6 +65,16 @@ export function PatientDashboard({
           ) : (
             <span className="rounded-pill bg-paper-sunk px-3 py-1.5 text-sm font-medium text-ink/55">
               No DNR
+            </span>
+          )}
+          {profile.bloodDonor && (
+            <span className="inline-flex items-center gap-1.5 rounded-pill bg-critical/[0.07] px-3 py-1.5 text-sm font-medium text-critical-deep">
+              <Droplet className="h-3.5 w-3.5" /> Blood donor
+            </span>
+          )}
+          {profile.organDonor && (
+            <span className="inline-flex items-center gap-1.5 rounded-pill bg-royal-50 px-3 py-1.5 text-sm font-medium text-royal-700">
+              <HeartHandshake className="h-3.5 w-3.5" /> Organ donor
             </span>
           )}
         </div>

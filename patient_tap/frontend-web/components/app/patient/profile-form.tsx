@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, Save, Pill, UserPlus } from "lucide-react";
+import { Plus, Trash2, Save, Pill, UserPlus, Droplet, HeartHandshake } from "lucide-react";
 import { BLOOD_TYPES, type PatientProfile } from "@/lib/models";
 import { useAppStore } from "@/lib/store";
 import { useToast } from "@/components/app/ui/toast";
@@ -9,6 +9,7 @@ import { Screen, ScreenHeader, Card, SectionLabel } from "@/components/app/ui/sc
 import { Field, TextInput, SelectInput } from "@/components/app/ui/field";
 import { ChipInput } from "@/components/app/ui/chip-input";
 import { DnrToggle } from "@/components/app/ui/dnr-toggle";
+import { DonorToggle } from "@/components/app/ui/donor-toggle";
 import { ActionButton } from "@/components/app/ui/action-button";
 
 const MAX_CONTACTS = 3;
@@ -150,6 +151,30 @@ export function ProfileForm({ onSaved }: { onSaved: () => void }) {
         <Card>
           <SectionLabel>Life-safety</SectionLabel>
           <DnrToggle value={draft.dnr} onChange={(dnr) => patch({ dnr })} />
+        </Card>
+
+        {/* donation — informational, never affects care */}
+        <Card>
+          <SectionLabel>Donation</SectionLabel>
+          <div className="space-y-2.5">
+            <DonorToggle
+              icon={Droplet}
+              label="Voluntary blood donor"
+              hint={draft.bloodDonor ? "Shown with your blood group" : "Off"}
+              value={Boolean(draft.bloodDonor)}
+              onChange={(bloodDonor) => patch({ bloodDonor })}
+            />
+            <DonorToggle
+              icon={HeartHandshake}
+              label="Pledged organ donor"
+              hint={draft.organDonor ? "Pledge noted — register it with NOTTO too" : "Off"}
+              value={Boolean(draft.organDonor)}
+              onChange={(organDonor) => patch({ organDonor })}
+            />
+          </div>
+          <p className="mt-3 text-xs text-ink/40">
+            Information only. It never changes the care you receive.
+          </p>
         </Card>
 
         {/* contacts */}

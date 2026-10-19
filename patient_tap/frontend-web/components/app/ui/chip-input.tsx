@@ -45,7 +45,7 @@ export function ChipInput({
             }
           }}
           placeholder={placeholder}
-          className="w-full rounded-2xl border border-paper-line bg-paper-card px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/30 focus:border-royal-400 focus:ring-4 focus:ring-royal-500/10"
+          className="w-full rounded-2xl border border-paper-line bg-paper-card px-4 py-3 text-sm text-ink outline-hidden transition-colors placeholder:text-ink/30 focus:border-royal-400 focus:ring-4 focus:ring-royal-500/10"
         />
         <button
           type="button"

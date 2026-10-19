@@ -1,0 +1,35 @@
+name: Web CI
+
+on:
+  push:
+    branches: [main]
+    paths: ["patient_tap/frontend-web/**", ".github/workflows/web-ci.yml"]
+  pull_request:
+    paths: ["patient_tap/frontend-web/**", ".github/workflows/web-ci.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: patient_tap/frontend-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: patient_tap/frontend-web/package-lock.json
+      - run: npm ci
+      - name: Dependency audit (fails on moderate or worse)
+        run: npm audit --audit-level=moderate
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build

@@ -1,87 +1,103 @@
-# Patient-Tap — Web
+# Patient-Tap — Website
 
-A premium, motion-rich **web** frontend for Patient-Tap, living alongside (and independent of)
-the Flutter app at the repo root. Same product: an encrypted patient medical record that lives
-on an NFC wristband (NTAG215, 504 bytes), readable by any phone with **zero network dependency**.
+The public website for Patient-Tap: the marketing site, **MedVerify** (scan a medicine pack to
+check it's genuine), the blood & organ **donation** tools, the legal pages, and the `/app` web
+demo of the patient/responder experience. The native Android app lives in
+[`../../patient-tap-android`](../../patient-tap-android).
 
-This is **frontend only**. Every backend touchpoint is stubbed behind a clean, typed interface that
-returns mock data after a simulated delay — the same contract the Flutter app uses — so the
-backend/crypto/NFC/alerts teammates drop real code in without touching a single screen.
+Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · GSAP + Lenis · three.js (react-three-fiber)
+· Supabase · Vercel.
 
-## Run
-
-> Run from **inside this folder** (`frontend-web/`) — that keeps `npm`/`next` binary resolution
-> simple regardless of where the repo is checked out.
+## Run locally
 
 ```bash
-cd frontend-web
+cd patient_tap/frontend-web
 npm install
-npm run dev          # http://localhost:3000
-# production: npm run build && npm start
+cp .env.example .env.local   # then fill in the values (see below)
+npm run dev                  # http://localhost:3000
 ```
 
-Node 20+ recommended (developed on Node 24 / npm 11).
+Without `.env.local` the site still runs; only the forms and MedVerify report "offline".
 
-## What's in it
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Dev server |
+| `npm run build` / `npm start` | Production build / serve |
+| `npm run lint` | ESLint (typescript-eslint + React hooks) |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm audit` | Should report **0 vulnerabilities** |
 
-Two surfaces, one app:
+## Deploy to Vercel (custom domain)
 
-- **`/` — the landing showcase.** Cinematic dark hero with a live NFC credential card, spec marquee,
-  gapless feature bento, a **scroll-pinned "how it works"** sequence, a word-by-word scrubbed mission
-  reveal, a scale-on-scroll responder showcase, animated stat counters, and a closing CTA.
-- **`/app` — the functional app.** A phone-framed shell with a **Patient ⇄ Responder** toggle and a
-  dark floating pill nav, mirroring the Flutter screens:
-  - **Patient:** Profile dashboard (circular tag-storage gauge + stat grid) · Edit form
-    (blood type, allergy chips, repeatable meds, red DNR toggle, ≤3 contacts) · Write-to-Tag
-    (simulated encrypt + write with `moved` / `full` errors).
-  - **Responder:** Scan (pulsing ring → read → decrypt, with tampered / no-tag states) · decrypted
-    life-safety record (DNR + allergies loudest/reddest) · Add-log-entry (Save & re-write tag) ·
-    Treatment-log timeline (dark segmented filter).
+1. Import the GitHub repo in Vercel. Set **Root Directory** to `patient_tap/frontend-web`
+   (framework preset: Next.js).
+2. Add these **Environment Variables** (Production and Preview):
 
-Deep-links for demos/screenshots: `?role=patient|responder`, `?screen=profile|edit|write|scan|record|log`,
-plus the legacy `?screen=patient|responder|log` shortcuts.
+   | Name | Value |
+   | --- | --- |
+   | `NEXT_PUBLIC_SITE_URL` | `https://your-domain` (canonical URL, sitemap, OG tags) |
+   | `SUPABASE_URL` | Supabase project URL |
+   | `SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key — server-side only |
+   | `WEB_RPC_TOKEN` | Shared secret checked by the database on every call |
+   | `IP_HASH_SALT` | Random string for hashing visitor IPs |
 
-## Motion / UX
+3. Add your domain under **Settings → Domains** and point DNS at Vercel.
+4. Optional: enable **Web Analytics** — it loads only after a visitor opts in via the cookie banner.
 
-- **GSAP** (`@gsap/react` + `ScrollTrigger`) for the hero timeline, pinning, scrubbed reveals, and
-  count-ups; **Lenis** for inertial smooth scroll (wired into the GSAP ticker).
-- A bespoke **two-part cursor** (tracking dot + spring-trailing ring with contextual labels),
-  **magnetic** buttons, and a 3D pointer-tilt credential card.
-- Everything degrades: `prefers-reduced-motion` disables smooth scroll, the custom cursor, and
-  reveals; entrances use `gsap.from` so content is never stuck hidden if JS fails.
+`vercel.json` pins serverless functions to `bom1` (Mumbai), next to the database.
 
-## The backend seam
+## Supabase
 
-All backend calls live in **`lib/services/`** and are re-exported from **`lib/services/index.ts`**.
-Swap these four files with the real stack and keep the exported signatures stable — no screen changes:
+Migrations live in [`supabase/migrations`](supabase/migrations):
 
-| File | Stub does | Real impl |
-| --- | --- | --- |
-| `crypto.ts` | JSON encode/decode; `tampered` on parse fail | protobuf + AES-256-GCM |
-| `nfc.ts` | ~20% write fail, `full` over 504 B, ~10% no-tag read | Web NFC / native NTAG215 |
-| `alert.ts` | logs the SMS+GPS payload | connectivity + SMS gateway |
-| `backend.ts` | returns success / Pro tier | Supabase + Stripe |
+| File | Purpose |
+| --- | --- |
+| `…_web_schema.sql` | Waitlist, contact, MedVerify registry and reports, plus rate limiting |
+| `…_medverify_demo_seed.sql` | Fictional demo medicines, batches and serials (GS1 `04x` prefix) |
+| `…_server_token_gate.sql` | Moves the logic to `private`; public RPCs check `WEB_RPC_TOKEN` |
 
-Models live in `lib/models.ts` (typed parallels of the Flutter `lib/models` with `profileToMap` /
-`profileFromMap` for wire parity). Sample content is in `lib/mock-data.ts`. Shared UI state
-(`ownerProfile`, `scanned`) is a small Zustand store in `lib/store.ts`.
+After applying them to a new project, store the token's hash once (SQL editor):
+
+```sql
+insert into private.app_config (key, value)
+values ('web_rpc_token_sha256', encode(sha256(convert_to('<WEB_RPC_TOKEN>', 'UTF8')), 'hex'))
+on conflict (key) do update set value = excluded.value;
+```
+
+## Security model
+
+- **Browser:** per-request nonce CSP with `strict-dynamic` (`proxy.ts`), HSTS preload,
+  `X-Frame-Options`, `nosniff`, a strict `Permissions-Policy` (camera on our origin only),
+  COOP/CORP, and no `X-Powered-By` (`next.config.mjs`).
+- **API** (`app/api/*`, `lib/server/guard.ts`): same-origin check, JSON-only size-capped bodies,
+  zod validation, honeypot + minimum fill time, per-instance burst limit.
+- **Database:** RLS on every table with no policies, and no table grants. Access goes only
+  through `SECURITY DEFINER` functions that require the server token and rate-limit per hashed
+  IP and globally. The browser never talks to Supabase directly.
+- **Privacy:** camera frames are decoded in the browser (ZXing); IPs are salted and hashed; the
+  MedVerify scan log is kept for 90 days.
+- **Supply chain:** CI runs `npm audit`, lint, typecheck and build
+  (`.github/workflows/web-ci.yml`), plus CodeQL and Dependabot.
+- Vulnerability reports go to `/security` and `/.well-known/security.txt`.
+
+## Legal pages
+
+`/privacy` (DPDP Act 2023), `/terms`, `/cookies`, `/disclaimer` (medical), `/refunds`,
+`/shipping`, `/accessibility`, `/security`, `/licenses`, `/contact` (with the Grievance Officer).
+Operator, contact and grievance details come from **`lib/site.ts`** — edit them there.
+Have the documents reviewed by a lawyer before taking real payments or real patient data.
 
 ## Structure
 
 ```
-app/                     # Next.js App Router (/ landing, /app surfaces)
-components/
-  landing/               # hero, bento, how-it-works, mission, life-safety, stats, cta
-  site/                  # floating nav, footer
-  brand/                 # logo, credential-card visual
-  ui/                    # cursor, reveal, magnetic, button, marquee, count-up
-  app/                   # the functional app
-    patient/ · responder/ · ui/   # screens + shared widgets
-  providers/             # smooth-scroll (Lenis + GSAP)
-lib/                     # models, services (the seam), mock-data, store, utils
+app/                  routes: / · /verify · /donate · /app · legal pages · api/*
+components/redesign/  landing sections (hero, emergency story, MedVerify, donation, …)
+components/three/     3D wristband (react-three-fiber), lazy-loaded with a 2D fallback
+components/medverify/ scanner, result view, report form, QR renderer
+components/donate/    eligibility check + blood-type compatibility explorer
+components/site/      legal shell, cookie consent, forms
+components/app/       the /app demo (patient + responder)
+lib/                  site config, GS1 parser, forms, consent, server guard, services
+proxy.ts              per-request CSP nonce
+supabase/migrations/  database schema
 ```
-
-## Stack
-
-Next.js 15 · React 19 · TypeScript · Tailwind CSS 3 · GSAP · Lenis · Zustand · lucide-react ·
-Space Grotesk + Geist. Design tokens: royal `#2F5FE0`, ink `#0A0E17`, off-white paper, critical red.

@@ -42,6 +42,7 @@ export function CredentialFeature() {
     <section id="card" ref={root} className="relative overflow-hidden bg-void py-28 md:py-40">
       {/* oil-slick glow pooled behind the card (right) */}
       <Iridescence
+        parallax={16}
         blobs={[
           { color: "#3b6dff", size: 520, top: "6%", left: "50%", blur: 100 },
           { color: "#9b5cff", size: 580, top: "24%", left: "60%", blur: 105 },

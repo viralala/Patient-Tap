@@ -15,6 +15,7 @@ export function scannedPatient(): PatientProfile {
     name: "Arjun Mehta",
     bloodType: "O-",
     dnr: true, // critical -> drives the warning-red responder UI
+    organDonor: true,
     allergies: ["Penicillin", "Peanuts", "Latex"],
     medications: [
       { name: "Metformin", dose: "500mg", frequency: "2x daily" },
@@ -53,6 +54,8 @@ export function demoPatientOwner(): PatientProfile {
     name: "Alex Harmozi",
     bloodType: "A+",
     dnr: false,
+    bloodDonor: true,
+    organDonor: true,
     allergies: ["Sulfa drugs", "Shellfish"],
     medications: [
       { name: "Lisinopril", dose: "10mg", frequency: "Daily" },

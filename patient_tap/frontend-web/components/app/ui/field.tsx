@@ -25,7 +25,7 @@ export function Field({
 }
 
 const inputBase =
-  "w-full rounded-2xl border border-paper-line bg-paper-card px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/30 focus:border-royal-400 focus:ring-4 focus:ring-royal-500/10";
+  "w-full rounded-2xl border border-paper-line bg-paper-card px-4 py-3 text-sm text-ink outline-hidden transition-colors placeholder:text-ink/30 focus:border-royal-400 focus:ring-4 focus:ring-royal-500/10";
 
 export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={cn(inputBase, props.className)} />;
