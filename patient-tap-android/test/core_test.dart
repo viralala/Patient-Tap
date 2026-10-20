@@ -2,8 +2,11 @@
 // format, the tag payload round trip, and the drug conflict checker.
 
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ndef_record/ndef_record.dart';
+import 'package:patient_tap/config/app_config.dart';
 import 'package:patient_tap/core/conflict_checker.dart';
 import 'package:patient_tap/core/crypto_service.dart';
 import 'package:patient_tap/core/local_store.dart';
@@ -114,11 +117,39 @@ void main() {
       expect(back.emergencyContacts, isEmpty);
     });
 
-    test('the demo profile fits inside the 504-byte NTAG215 budget', () {
+    test('the demo profile fits inside the NTAG215 budget', () {
       expect(
         estimateWriteSize(demoProfile(), WriteSelection.all()),
-        lessThan(504),
+        lessThanOrEqualTo(kTagLimitBytes),
       );
+    });
+
+    test('budgets the NDEF message that is written, not the binary size',
+        () async {
+      // Check the estimate against the real record the NFC layer builds,
+      // either side of the 255-byte short-record boundary.
+      for (final int len in <int>[1, 150, 163, 164, 165, 300, 504]) {
+        final String plain = 'x' * len;
+        final String b64 = await CryptoService.encryptBytes(plain);
+        final NdefMessage msg = NdefMessage(records: <NdefRecord>[
+          NdefRecord(
+            typeNameFormat: TypeNameFormat.media,
+            type: Uint8List.fromList(utf8.encode(kTagMimeType)),
+            identifier: Uint8List(0),
+            payload: Uint8List.fromList(utf8.encode(b64)),
+          ),
+        ]);
+        expect(ndefMessageSize(CryptoService.encryptedSize(plain)),
+            msg.byteLength,
+            reason: 'plaintext of $len bytes');
+      }
+    });
+
+    test('rejects a payload whose binary fits but whose record does not', () {
+      // 400 encrypted bytes used to pass the old 504-byte binary check, but
+      // become a 567-byte record once base64-encoded.
+      expect(400, lessThan(504));
+      expect(ndefMessageSize(400), greaterThan(kTagLimitBytes));
     });
 
     test('survives a corrupt/garbage payload without throwing', () {

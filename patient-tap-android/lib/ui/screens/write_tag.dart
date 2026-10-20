@@ -1,6 +1,6 @@
 // ============================================================================
 // F4 — selective write to a REAL NTAG215.
-// User picks categories; a live budget meter tracks the 504-byte ceiling
+// User picks categories; a live budget meter tracks the tag's NDEF ceiling
 // (F4.4); the write itself holds an NFC session open until a card arrives.
 // ============================================================================
 
@@ -127,7 +127,7 @@ class _WriteTagScreenState extends State<WriteTagScreen> {
                       Text('Tag written', style: T.display(size: 26)),
                       const SizedBox(height: 8),
                       Text(
-                        '$_written encrypted bytes are now on the card. '
+                        '$_written bytes are now on the card. '
                         'Re-scan in Responder mode to verify.',
                         textAlign: TextAlign.center,
                         style: T.caption(),
@@ -202,7 +202,7 @@ class _WriteTagScreenState extends State<WriteTagScreen> {
                           const SizedBox(height: 10),
                           const f.Banner(
                             kind: f.BannerKind.danger,
-                            title: 'Over the 504-byte limit',
+                            title: 'Over the $kTagLimitBytes-byte limit',
                             body: 'Deselect lower-priority categories '
                                 '(e.g. older treatment log entries) to fit.',
                             margin: EdgeInsets.zero,

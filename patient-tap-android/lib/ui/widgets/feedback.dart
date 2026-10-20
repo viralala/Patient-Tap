@@ -381,7 +381,7 @@ class Toast extends StatelessWidget {
 
 // ---------------------------------------------------------- budget meter ----
 
-/// `.meter` — the live 504-byte payload budget (F4.4).
+/// `.meter` — the live tag payload budget (F4.4).
 class BudgetMeter extends StatelessWidget {
   const BudgetMeter({super.key, required this.used, required this.limit});
   final int used;
@@ -415,7 +415,7 @@ class BudgetMeter extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('$used bytes encrypted',
+              Text('$used bytes on tag',
                   style: T.mono(size: 12, color: C.textSecondary)),
               Text(
                 '${over ? '${used - limit} over' : '${limit - used} left'} / $limit',

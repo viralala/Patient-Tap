@@ -118,8 +118,9 @@ there is nowhere for a browser to render them nicely.
 
 ## 6. Provisioning NFC cards
 
-Any **NTAG213/215/216** sticker or wristband works — NTAG215 (504 usable
-bytes) is what the 504-byte budget meter in the Tag screen assumes. Cheap
+Any **NTAG213/215/216** sticker or wristband works — NTAG215 (504 bytes of
+user memory, 492 usable for the NDEF message) is what the budget meter in
+the Tag screen assumes. Cheap
 5-packs are available from most electronics marketplaces. No special
 provisioning step is needed: the app formats a blank card automatically the
 first time you write to it (see `NfcService.writeToTag` →

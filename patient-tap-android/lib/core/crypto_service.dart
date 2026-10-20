@@ -105,7 +105,7 @@ class CryptoService {
 
   /// Encrypted byte cost of a plaintext, WITHOUT actually encrypting.
   /// AES-GCM: ciphertext == plaintext length, + 16-byte tag, + 12-byte IV.
-  /// Used for the live 504-byte budget meter (F4.4).
+  /// Feeds the live tag budget meter (F4.4) via `ndefMessageSize`.
   static int encryptedSize(String plaintext) =>
       utf8.encode(plaintext).length + 16 /* tag */ + 12 /* IV */;
 

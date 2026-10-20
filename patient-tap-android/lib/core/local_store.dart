@@ -127,7 +127,7 @@ class LocalStore {
 // ===========================================================================
 
 /// Compact projection of a profile down to only the selected categories.
-/// Short keys keep the JSON small so more fits inside 504 bytes.
+/// Short keys keep the JSON small so more fits on the tag.
 Map<String, dynamic> projectForWrite(PatientProfile p, WriteSelection sel) {
   final Map<String, dynamic> out = <String, dynamic>{'v': 2};
   if (sel.basic) {
@@ -159,9 +159,21 @@ Map<String, dynamic> projectForWrite(PatientProfile p, WriteSelection sel) {
 String serializeForWrite(PatientProfile p, WriteSelection sel) =>
     jsonEncode(projectForWrite(p, sel));
 
-/// Live encrypted-payload size for the current selection (F4.4 budget meter).
+/// Bytes of the NDEF message written for an encrypted payload of
+/// [binaryLen] bytes. The card stores the payload as base64 text inside one
+/// MIME record, so this is what has to fit — not the raw binary size.
+int ndefMessageSize(int binaryLen) {
+  final int payload = 4 * ((binaryLen + 2) ~/ 3); // padded base64
+  final int type = utf8.encode(kTagMimeType).length;
+  // Header byte + type length + payload length (1 byte for a short record,
+  // 4 once the payload passes 255 bytes).
+  final int header = 1 + 1 + (payload > 255 ? 4 : 1);
+  return header + type + payload;
+}
+
+/// Live on-tag size for the current selection (F4.4 budget meter).
 int estimateWriteSize(PatientProfile p, WriteSelection sel) =>
-    CryptoService.encryptedSize(serializeForWrite(p, sel));
+    ndefMessageSize(CryptoService.encryptedSize(serializeForWrite(p, sel)));
 
 /// Rebuild a partial PatientProfile from a decrypted tag payload.
 PatientProfile deserializeFromTag(String jsonStr) {
