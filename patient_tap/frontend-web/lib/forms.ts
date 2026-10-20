@@ -39,7 +39,7 @@ export const CONTACT_TOPIC_LABELS: Record<ContactTopic, string> = {
   partnership: "Partnership / pilot",
   press: "Press & media",
   order: "Wristband pre-order",
-  data_request: "My data — access, correction or erasure",
+  data_request: "My data: access, correction or erasure",
   grievance: "Grievance (to the Grievance Officer)",
   security: "Security issue",
   other: "Something else",

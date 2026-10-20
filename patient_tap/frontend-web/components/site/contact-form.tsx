@@ -91,7 +91,7 @@ export function ContactForm() {
             className={inputClass}
           >
             {CONTACT_TOPICS.map((t) => (
-              <option key={t} value={t} className="bg-[#141417]">
+              <option key={t} value={t} className="bg-canvas">
                 {CONTACT_TOPIC_LABELS[t]}
               </option>
             ))}
@@ -103,7 +103,7 @@ export function ContactForm() {
         label="Message"
         hint={
           topic === "security"
-            ? "Please don't include working exploits here — we'll reply with a secure channel."
+            ? "Please don't include working exploits here. We'll reply with a secure channel."
             : "Please don't include medical details. We can't give medical advice."
         }
       >
@@ -123,7 +123,7 @@ export function ContactForm() {
 
       <Checkbox checked={consent} onChange={setConsent} required>
         I agree that Patient-Tap may use these details to reply to me, as described in the{" "}
-        <Link href="/privacy" className="text-royal-300 underline underline-offset-2">
+        <Link href="/privacy" className="text-bone underline underline-offset-2">
           privacy policy
         </Link>
         .
@@ -136,7 +136,7 @@ export function ContactForm() {
         <FormStatus
           status={status}
           error={error}
-          success="Thanks — your message is in. We usually reply within 3 business days."
+          success="Thanks, your message is in. We aim to reply within 3 business days."
         />
       </div>
     </form>

@@ -23,7 +23,7 @@ export const site = {
     "Patient-Tap puts an encrypted emergency medical record on an NFC wristband that any responder's phone can read in seconds, with no network. Plus MedVerify: scan a medicine pack to check whether it is genuine.",
   url: resolveSiteUrl(),
   locale: "en_IN",
-  themeColor: "#0a0a0b",
+  themeColor: "#191919",
 
   /** Who operates the service. Shown in every legal page. */
   operator: {

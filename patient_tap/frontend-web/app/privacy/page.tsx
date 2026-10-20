@@ -59,7 +59,7 @@ const sections: LegalSection[] = [
           </li>
         </ul>
         <p>
-          Websites we link to — such as e-RaktKosh, NOTTO or a payment page — have their own
+          Websites we link to, such as e-RaktKosh, NOTTO or a payment page, have their own
           policies, which we don&apos;t control.
         </p>
       </>
@@ -123,11 +123,11 @@ const sections: LegalSection[] = [
                 pages requested, time
               </td>
               <td>Security and keeping the site running</td>
-              <td>As set by Vercel — typically a few days</td>
+              <td>As set by Vercel, typically a few days</td>
             </tr>
             <tr>
               <td>
-                <strong>Analytics</strong> — only if you opt in: aggregate page views without cookies
+                <strong>Analytics</strong>, only if you opt in: aggregate page views without cookies
               </td>
               <td>To learn which pages are useful</td>
               <td>Aggregated; no individual profile is built</td>
@@ -171,7 +171,7 @@ const sections: LegalSection[] = [
         </p>
         <p>
           The blood-donation eligibility check and blood-type explorer on{" "}
-          <Link href="/donate">/donate</Link> also run only in your browser — we never receive your
+          <Link href="/donate">/donate</Link> also run only in your browser. We never receive your
           answers.
         </p>
       </>
@@ -183,7 +183,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          The app handles <strong>health data</strong> — allergies, medications, conditions, blood
+          The app handles <strong>health data</strong>: allergies, medications, conditions, blood
           group, a do-not-resuscitate preference, donor status and emergency contacts. We treat it
           as the most sensitive data we hold. You decide what goes on your tag.
         </p>
@@ -195,7 +195,7 @@ const sections: LegalSection[] = [
           </li>
           <li>
             <strong>Anyone who taps your tag with the Patient-Tap responder app can read the
-            record</strong> — that is the point: a paramedic must be able to read it when you
+            record</strong>. That is the point: a paramedic must be able to read it when you
             can&apos;t speak. Only put on the tag what you are comfortable with an emergency
             responder seeing.
           </li>
@@ -226,8 +226,8 @@ const sections: LegalSection[] = [
             (SMS) and Resend (email).
           </li>
           <li>
-            <strong>Access log:</strong> scans of your tag can be recorded — the time, the
-            responder ID and, where the scanning phone shares it, the location of the scan — so
+            <strong>Access log:</strong> scans of your tag can be recorded (the time, the
+            responder ID and, where the scanning phone shares it, the location of the scan) so
             you can see who opened your record and where.
           </li>
           <li>
@@ -249,7 +249,7 @@ const sections: LegalSection[] = [
   },
   {
     id: "use",
-    title: "How we use data — and what we never do",
+    title: "How we use data, and what we never do",
     body: (
       <>
         <p>We use personal data only to:</p>
@@ -268,7 +268,7 @@ const sections: LegalSection[] = [
         </ul>
         <p>
           We process data on the basis of your <strong>consent</strong> (DPDP Act, section 6) or,
-          where the Act allows it, for <strong>legitimate uses</strong> (section 7) — for example
+          where the Act allows it, for <strong>legitimate uses</strong> (section 7), for example
           responding to a medical emergency or complying with a legal obligation.
         </p>
       </>
@@ -322,7 +322,7 @@ const sections: LegalSection[] = [
         <p>
           Some providers may process data outside India. The DPDP Act allows this except to
           countries the Government of India restricts, and we will follow any such restriction.
-          We may also disclose data when Indian law requires it — for example a valid order from a
+          We may also disclose data when Indian law requires it, for example a valid order from a
           court or authority.
         </p>
       </>
@@ -359,7 +359,7 @@ const sections: LegalSection[] = [
       <>
         <p>
           Our website forms are for people aged <strong>18 or over</strong>. A child&apos;s
-          Patient-Tap profile — for example on a school wristband — must be created by a parent or
+          Patient-Tap profile, for example on a school wristband, must be created by a parent or
           lawful guardian, who gives consent on the child&apos;s behalf (DPDP Act, section 9). We do
           not track children or target advertising at them.
         </p>
@@ -377,7 +377,7 @@ const sections: LegalSection[] = [
           <li>have inaccurate data corrected, completed or updated;</li>
           <li>have your data erased when it is no longer needed or you withdraw consent;</li>
           <li>
-            withdraw consent at any time — as easily as you gave it. This does not affect anything
+            withdraw consent at any time, as easily as you gave it. This does not affect anything
             done before you withdrew;
           </li>
           <li>nominate someone to exercise your rights if you die or become incapacitated;</li>
@@ -436,7 +436,7 @@ export default function PrivacyPage() {
       title="Privacy policy"
       intro={
         <p>
-          Patient-Tap exists to put your medical information in your hands — so our default is to
+          Patient-Tap exists to put your medical information in your hands, so our default is to
           collect as little as possible, keep it encrypted, and never sell it.
         </p>
       }
@@ -445,7 +445,7 @@ export default function PrivacyPage() {
         "The website collects only what you type into its forms, plus a hashed network address for abuse prevention.",
         "MedVerify reads codes with your camera inside your browser; images never leave your device.",
         "We never sell data, run ads, or track you across other websites.",
-        `You can see, correct or delete your data at any time — email ${c.privacyEmail}.`,
+        `You can see, correct or delete your data at any time by emailing ${c.privacyEmail}.`,
       ]}
       sections={sections}
     />

@@ -35,7 +35,7 @@ const sections: LegalSection[] = [
         <tbody>
           <tr>
             <td>The record</td>
-            <td>AES-256-GCM authenticated encryption on the tag — tampering is detected, not just hidden</td>
+            <td>AES-256-GCM authenticated encryption on the tag. Tampering is detected, not just hidden</td>
           </tr>
           <tr>
             <td>Transport</td>

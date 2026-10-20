@@ -3,7 +3,7 @@ import { AppShell } from "@/components/app/app-shell";
 import type { Role } from "@/components/app/ui/role-switch";
 
 export const metadata: Metadata = {
-  title: "Patient-Tap — app",
+  title: "Web app",
   description: "Patient and responder demo surfaces for Patient-Tap.",
 };
 

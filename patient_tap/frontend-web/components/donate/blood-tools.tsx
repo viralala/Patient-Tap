@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCircle2, Clock, HelpCircle, XCircle } from "lucide-react";
 import { FieldLabel, inputClass } from "@/components/site/form-controls";
 import { cn } from "@/lib/utils";
 
@@ -31,15 +30,15 @@ const pretty = (t: string) => t.replace("-", "−");
 export function CompatibilityExplorer() {
   const [type, setType] = useState<BloodType>("O-");
   const notes: Partial<Record<BloodType, string>> = {
-    "O-": "Universal red-cell donor — the type emergency teams reach for first.",
+    "O-": "Universal red-cell donor. Emergency teams reach for it first.",
     "AB+": "Universal red-cell recipient, and AB plasma can be given to anyone.",
     "AB-": "AB plasma can be given to patients of any blood group.",
   };
 
   return (
-    <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 md:p-8">
-      <h3 className="font-display text-xl font-semibold tracking-tight">Who can you give to?</h3>
-      <p className="mt-1 text-sm text-white/50">Pick your blood group (red-cell transfusion).</p>
+    <div className="rounded-[18px] border border-bone/15 p-6 md:p-8">
+      <h3 className="font-serif text-3xl leading-tight">Who can you give to?</h3>
+      <p className="label mt-2 text-bone/50">Pick your blood group (red-cell transfusion)</p>
       <div role="radiogroup" aria-label="Your blood group" className="mt-5 grid grid-cols-4 gap-2">
         {TYPES.map((t) => (
           <button
@@ -49,8 +48,8 @@ export function CompatibilityExplorer() {
             aria-checked={type === t}
             onClick={() => setType(t)}
             className={cn(
-              "rounded-2xl border py-3 font-display text-lg font-semibold transition-colors",
-              type === t ? "border-critical bg-critical text-white" : "border-white/12 text-white/70 hover:border-white/40",
+              "rounded-btn border py-3 font-mono text-lg transition-colors",
+              type === t ? "border-scarlet bg-scarlet text-bone" : "border-bone/20 text-bone/75 hover:border-bone/50",
             )}
           >
             {pretty(t)}
@@ -63,8 +62,8 @@ export function CompatibilityExplorer() {
           ["Can donate to", GIVES_TO[type]],
           ["Can receive from", RECEIVES_FROM[type]],
         ].map(([label, list]) => (
-          <div key={label as string} className="rounded-2xl border border-white/10 bg-black/25 p-4">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">{label as string}</p>
+          <div key={label as string} className="border-t border-bone/15 pt-4">
+            <p className="label text-bone/50">{label as string}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {TYPES.map((t) => {
                 const on = (list as BloodType[]).includes(t);
@@ -72,8 +71,8 @@ export function CompatibilityExplorer() {
                   <span
                     key={t}
                     className={cn(
-                      "rounded-full px-2.5 py-1 font-mono text-xs",
-                      on ? "bg-critical/20 text-critical-soft" : "bg-white/[0.04] text-white/20 line-through",
+                      "rounded-[6px] px-2 py-1 font-mono text-xs",
+                      on ? "bg-bone text-canvas" : "text-bone/25 line-through",
                     )}
                   >
                     {pretty(t)}
@@ -84,10 +83,10 @@ export function CompatibilityExplorer() {
           </div>
         ))}
       </div>
-      <p className="mt-4 min-h-[1.25rem] text-sm text-white/60" aria-live="polite">
+      <p className="mt-5 min-h-[1.25rem] font-serif text-lg leading-snug text-bone/80" aria-live="polite">
         {notes[type] ?? `${pretty(type)} can donate to ${GIVES_TO[type].length} of the 8 groups.`}
       </p>
-      <p className="mt-2 text-xs text-white/35">
+      <p className="mt-2 font-mono text-xs text-bone/45">
         Simplified ABO/Rh guide. Hospitals always cross-match blood before a transfusion.
       </p>
     </div>
@@ -144,17 +143,17 @@ export function EligibilityCheck() {
     };
   }, [age, weight, sex, last, unwell, tattoo, pregnant]);
 
-  const icon = {
-    ok: <CheckCircle2 className="h-6 w-6 text-signal-soft" />,
-    wait: <Clock className="h-6 w-6 text-amber-300" />,
-    no: <XCircle className="h-6 w-6 text-critical-soft" />,
-    ask: <HelpCircle className="h-6 w-6 text-royal-300" />,
+  const tone = {
+    ok: { cls: "bg-pine text-bone", tag: "Likely yes" },
+    wait: { cls: "bg-lemon text-canvas", tag: "Wait" },
+    no: { cls: "bg-scarlet text-bone", tag: "Not now" },
+    ask: { cls: "border border-bone/25 text-bone", tag: "Ask" },
   };
 
   return (
-    <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 md:p-8">
-      <h3 className="font-display text-xl font-semibold tracking-tight">Can I donate?</h3>
-      <p className="mt-1 text-sm text-white/50">A 30-second guide. Your answers never leave this page.</p>
+    <div className="rounded-[18px] border border-bone/15 p-6 md:p-8">
+      <h3 className="font-serif text-3xl leading-tight">Can I donate?</h3>
+      <p className="label mt-2 text-bone/50">Your answers never leave this page</p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <FieldLabel label="Age">
@@ -166,9 +165,9 @@ export function EligibilityCheck() {
         <FieldLabel label="Sex">
           {(id) => (
             <select id={id} value={sex} onChange={(e) => setSex(e.target.value as typeof sex)} className={inputClass}>
-              <option value="female" className="bg-[#141417]">Female</option>
-              <option value="male" className="bg-[#141417]">Male</option>
-              <option value="other" className="bg-[#141417]">Prefer not to say</option>
+              <option value="female" className="bg-canvas">Female</option>
+              <option value="male" className="bg-canvas">Male</option>
+              <option value="other" className="bg-canvas">Prefer not to say</option>
             </select>
           )}
         </FieldLabel>
@@ -178,18 +177,18 @@ export function EligibilityCheck() {
       </div>
 
       <fieldset className="mt-5 space-y-2.5">
-        <legend className="mb-2 text-sm font-medium text-white/80">Any of these right now?</legend>
+        <legend className="label mb-3 text-bone/75">Any of these right now?</legend>
         {[
           [unwell, setUnwell, "Fever, feeling unwell, or taking antibiotics"],
           [tattoo, setTattoo, "Tattoo, piercing or acupuncture in the last 12 months"],
           [pregnant, setPregnant, "Pregnant, or had a baby in the last year"],
         ].map(([v, set, label]) => (
-          <label key={label as string} className="flex cursor-pointer items-center gap-3 text-sm text-white/65">
+          <label key={label as string} className="flex cursor-pointer items-center gap-3 text-sm text-bone/70">
             <input
               type="checkbox"
               checked={v as boolean}
               onChange={(e) => (set as (b: boolean) => void)(e.target.checked)}
-              className="h-4 w-4 accent-[#F5333F]"
+              className="h-4 w-4 accent-[#FFE927]"
             />
             {label as string}
           </label>
@@ -198,18 +197,16 @@ export function EligibilityCheck() {
 
       <div aria-live="polite" className="mt-6 min-h-[88px]">
         {verdict ? (
-          <div className="flex gap-3 rounded-2xl border border-white/10 bg-black/25 p-4">
-            {icon[verdict.tone]}
-            <div>
-              <p className="font-medium">{verdict.title}</p>
-              <p className="mt-1 text-sm leading-relaxed text-white/60">{verdict.body}</p>
-            </div>
+          <div className={cn("rounded-[14px] p-5", tone[verdict.tone].cls)}>
+            <p className="label opacity-75">{tone[verdict.tone].tag}</p>
+            <p className="mt-2 font-serif text-2xl leading-tight">{verdict.title}</p>
+            <p className="mt-1.5 text-[15px] leading-relaxed opacity-85">{verdict.body}</p>
           </div>
         ) : (
-          <p className="text-sm text-white/40">Enter your age and weight to see a result.</p>
+          <p className="text-sm text-bone/45">Enter your age and weight to see a result.</p>
         )}
       </div>
-      <p className="mt-3 text-xs leading-relaxed text-white/35">
+      <p className="mt-3 font-mono text-xs leading-relaxed text-bone/45">
         A rough guide based on national blood-donor guidelines, not a medical clearance. The blood
         centre makes the final decision after its own screening.
       </p>

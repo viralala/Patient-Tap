@@ -10,9 +10,11 @@ export const metadata: Metadata = {
 };
 
 const FONTS = [
-  { name: "Geist & Geist Mono", by: "Vercel", license: "SIL Open Font License 1.1" },
+  { name: "Geist and Geist Mono", by: "Vercel", license: "SIL Open Font License 1.1" },
   { name: "Space Grotesk", by: "Florian Karsten", license: "SIL Open Font License 1.1" },
-  { name: "Instrument Serif", by: "Instrument", license: "SIL Open Font License 1.1" },
+  { name: "Anton", by: "Vernon Adams", license: "SIL Open Font License 1.1" },
+  { name: "Newsreader", by: "Production Type", license: "SIL Open Font License 1.1" },
+  { name: "IBM Plex Mono", by: "IBM", license: "SIL Open Font License 1.1" },
 ];
 
 const sections: LegalSection[] = [
@@ -50,7 +52,7 @@ const sections: LegalSection[] = [
                 </a>
               </td>
               <td>{l.version}</td>
-              <td>{l.license.startsWith("SEE LICENSE") || l.license.startsWith("Standard") ? "GSAP Standard License" : l.license}</td>
+              <td>{l.license}</td>
             </tr>
           ))}
         </tbody>

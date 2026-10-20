@@ -25,7 +25,7 @@
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    scroll-behavior: auto; /* Lenis owns smooth scrolling */
+    scroll-behavior: smooth;
   }
 
   body {
@@ -42,20 +42,8 @@
   }
 
   ::selection {
-    background: theme("colors.royal.500");
-    color: #fff;
-  }
-
-  /* Custom cursor: hide the native one only on precise-pointer devices. */
-  body.cursor-custom,
-  body.cursor-custom * {
-    cursor: none !important;
-  }
-  @media (hover: none), (pointer: coarse) {
-    body.cursor-custom,
-    body.cursor-custom * {
-      cursor: auto !important;
-    }
+    background: theme("colors.lemon");
+    color: #191919;
   }
 
   /* Scrollbar */
@@ -71,9 +59,9 @@
     background: rgba(255, 255, 255, 0.18);
   }
 
-  /* Visible keyboard focus everywhere (custom cursor hides the native one). */
+  /* Visible keyboard focus everywhere. */
   :focus-visible {
-    outline: 2px solid theme("colors.royal.400");
+    outline: 2px solid theme("colors.lemon");
     outline-offset: 3px;
   }
 }
@@ -104,46 +92,86 @@
     padding-inline: var(--shell-pad);
   }
 
-  /* Fine film grain overlay for the dark cinematic chapters. */
-  .grain::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.5;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    animation: grain-shift 8s steps(4) infinite;
+  /* Marketing buttons: soft-cornered, never pill-shaped. The arrow sits in
+     its own cell behind a hairline, like a label on a file card. */
+  .btn {
+    display: inline-flex;
+    align-items: stretch;
+    min-height: 48px;
+    border-radius: theme("borderRadius.btn");
+    font-family: theme("fontFamily.mono");
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease,
+      border-color 0.25s ease;
+  }
+  .btn > span {
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 1.15rem;
+  }
+  .btn > span + span {
+    border-left: 1px solid currentColor;
+    padding-inline: 0.9rem;
+  }
+  .btn-solid {
+    background: theme("colors.bone.DEFAULT");
+    color: theme("colors.canvas.DEFAULT");
+  }
+  .btn-solid > span + span {
+    border-color: rgba(25, 25, 25, 0.2);
+  }
+  .btn-solid:hover {
+    background: theme("colors.lemon");
+  }
+  .btn-line {
+    border: 1px solid rgba(251, 248, 243, 0.3);
+    color: theme("colors.bone.DEFAULT");
+  }
+  .btn-line > span + span {
+    border-color: rgba(251, 248, 243, 0.3);
+  }
+  .btn-line:hover {
+    border-color: theme("colors.bone.DEFAULT");
+  }
+  .btn-dark {
+    background: theme("colors.canvas.DEFAULT");
+    color: theme("colors.bone.DEFAULT");
+  }
+  .btn-dark > span + span {
+    border-color: rgba(251, 248, 243, 0.25);
+  }
+  .btn-dark:hover {
+    background: #000;
   }
 
-  /* Royal-blue radial glow, for hero + CTA backdrops. */
-  .glow-royal {
-    background:
-      radial-gradient(60% 55% at 50% 12%, rgba(47, 95, 224, 0.42), transparent 70%),
-      radial-gradient(40% 40% at 82% 78%, rgba(47, 95, 224, 0.18), transparent 72%);
-  }
-
-  /* Fine dotted grid used behind dark sections. */
-  .grid-fade {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
-    background-size: 26px 26px;
-    -webkit-mask-image: radial-gradient(70% 70% at 50% 40%, #000 30%, transparent 100%);
-    mask-image: radial-gradient(70% 70% at 50% 40%, #000 30%, transparent 100%);
-  }
-
-  /* Frosted glass card (nav pill, floating chips). */
+  /* Frosted bar used by the web app's bottom navigation. */
   .glass {
     background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(18px) saturate(150%);
     -webkit-backdrop-filter: blur(18px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.12);
   }
-  .glass-light {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(18px) saturate(150%);
-    -webkit-backdrop-filter: blur(18px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+
+  /* Small mono label used above headings and inside colour panels. */
+  .label {
+    font-family: theme("fontFamily.mono");
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Condensed display caps, sized per use. */
+  .display {
+    font-family: theme("fontFamily.condensed");
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: -0.005em;
+    text-transform: uppercase;
   }
 
   /* Reveal primitive — GSAP flips these to visible; no-JS fallback keeps them shown. */
@@ -163,17 +191,20 @@
 
   /* Long-form legal / policy copy on the dark canvas. */
   .prose-legal {
-    color: rgba(255, 255, 255, 0.68);
-    font-size: 0.975rem;
-    line-height: 1.75;
+    color: rgba(251, 248, 243, 0.72);
+    font-family: theme("fontFamily.serif");
+    font-size: 1.075rem;
+    line-height: 1.7;
   }
   .prose-legal h2 {
     margin-top: 3rem;
     margin-bottom: 0.9rem;
-    color: #fff;
-    font-size: 1.35rem;
-    font-weight: 650;
-    letter-spacing: -0.01em;
+    color: theme("colors.bone.DEFAULT");
+    font-family: theme("fontFamily.condensed");
+    font-size: 1.9rem;
+    font-weight: 400;
+    line-height: 1;
+    text-transform: uppercase;
     scroll-margin-top: 7rem;
   }
   .prose-legal h3 {
@@ -201,7 +232,7 @@
     margin-bottom: 0.4rem;
   }
   .prose-legal a {
-    color: theme("colors.royal.300");
+    color: theme("colors.bone.DEFAULT");
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -212,11 +243,12 @@
   .prose-legal table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
+    font-family: theme("fontFamily.mono");
+    font-size: 0.8rem;
   }
   .prose-legal th,
   .prose-legal td {
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(251, 248, 243, 0.14);
     padding: 0.6rem 0.75rem;
     text-align: left;
     vertical-align: top;

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, Droplet, HeartHandshake, Nfc, Users, ShieldCheck } from "lucide-react";
 import { SiteNav } from "@/components/redesign/site-nav";
 import { SiteFooter } from "@/components/redesign/footer";
+import { PageHeader } from "@/components/site/page-header";
 import { CompatibilityExplorer, EligibilityCheck } from "@/components/donate/blood-tools";
 
 export const metadata: Metadata = {
-  title: "Blood & organ donation",
+  title: "Blood and organ donation",
   description:
     "Check whether you can donate blood, see blood-type compatibility, find blood banks on e-RaktKosh, and pledge organ donation through NOTTO.",
   alternates: { canonical: "/donate" },
@@ -16,6 +16,8 @@ const LINKS = {
   eraktkosh: "https://eraktkosh.mohfw.gov.in",
   nottoPledge: "https://notto.abdm.gov.in",
   notto: "https://notto.mohfw.gov.in",
+  nottoReport:
+    "https://www.tribuneindia.com/news/delhi/deceased-organ-donation-alarmingly-low-in-country-notto-report",
 };
 
 const ORGANS = ["Kidneys", "Liver", "Heart", "Lungs", "Pancreas", "Intestine"];
@@ -23,59 +25,41 @@ const TISSUES = ["Corneas", "Skin", "Bone", "Heart valves"];
 
 const PLEDGE_STEPS = [
   {
-    icon: HeartHandshake,
     title: "Pledge with NOTTO",
-    body: "Register on the national portal with Aadhaar OTP and choose which organs and tissues to donate. It takes a few minutes and is free.",
+    body: "Register on the national portal with Aadhaar OTP and choose which organs and tissues to donate. It is free and takes a few minutes.",
     href: LINKS.nottoPledge,
-    cta: "Open NOTTO pledge portal",
+    cta: "Open the NOTTO pledge portal",
   },
   {
-    icon: Users,
     title: "Tell your family",
     body: "In India, doctors still ask the family for consent at the time of death. A family that knows your wish can honour it.",
   },
   {
-    icon: Nfc,
     title: "Add it to your band",
-    body: "Record your pledge in Patient-Tap so it travels with your medical record — shown to responders as information only.",
+    body: "Record your pledge in Patient-Tap so it travels with your medical record. Responders see it as information only.",
     href: "/app?role=patient&screen=edit",
-    cta: "Try it in the demo",
+    cta: "Try it in the web app",
   },
 ];
+
+const linkCls = "label inline-flex items-center gap-2 text-bone underline-offset-4 hover:underline";
 
 export default function DonatePage() {
   return (
     <>
       <SiteNav />
-      <main id="main" className="relative bg-void pb-24 pt-32 text-white md:pt-40">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(60%_80%_at_50%_0%,rgba(245,51,63,0.16),transparent_70%)]" />
-        <div className="shell relative">
-          <header className="max-w-3xl">
-            <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-white/45">
-              <span className="h-1.5 w-1.5 rounded-full bg-critical" />
-              Donation
-            </p>
-            <h1 className="mt-5 font-sans text-[clamp(2.2rem,5.5vw,4.2rem)] font-bold leading-[1.02] tracking-tight">
-              Give blood. Pledge organs.{" "}
-              <span className="font-serif font-normal italic text-white/80">Make it known.</span>
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg">
-              Tools to check whether you can donate, understand blood types, and make sure your
-              donation wishes are known.
-            </p>
-          </header>
+      <main id="main" className="bg-canvas pb-28 pt-32 text-bone md:pt-40">
+        <div className="shell">
+          <PageHeader label="Donation" title="Give blood. Pledge organs.">
+            Check whether you can donate, see which blood types match, and make sure the people
+            around you know your wishes.
+          </PageHeader>
 
-          {/* blood */}
-          <section id="blood" aria-labelledby="blood-title" className="mt-16 scroll-mt-28">
-            <div className="flex items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-critical/15 ring-1 ring-critical/30">
-                <Droplet className="h-5 w-5 text-critical-soft" />
-              </span>
-              <h2 id="blood-title" className="font-display text-3xl font-semibold tracking-tight">
-                Blood donation
-              </h2>
-            </div>
-            <div className="mt-8 grid gap-5 lg:grid-cols-2">
+          <section id="blood" aria-labelledby="blood-title" className="mt-24 scroll-mt-24">
+            <h2 id="blood-title" className="display text-[clamp(2.5rem,6vw,5rem)]">
+              Blood
+            </h2>
+            <div className="mt-10 grid gap-5 lg:grid-cols-2">
               <EligibilityCheck />
               <CompatibilityExplorer />
             </div>
@@ -83,86 +67,68 @@ export default function DonatePage() {
               href={LINKS.eraktkosh}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 flex items-center justify-between gap-4 rounded-[22px] border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-white/30"
+              className="mt-5 flex items-center justify-between gap-6 rounded-[18px] bg-scarlet p-6 transition-colors hover:bg-[#c41a1a] md:p-8"
             >
               <span>
-                <span className="block font-medium">Find blood, blood banks and donation camps</span>
-                <span className="mt-0.5 block text-sm text-white/50">
-                  e-RaktKosh — the Government of India&apos;s live blood-stock network
+                <span className="block font-serif text-2xl leading-tight">
+                  Find blood, blood banks and donation camps
+                </span>
+                <span className="label mt-2 block text-bone/75">
+                  e-RaktKosh, the Government of India blood-stock network
                 </span>
               </span>
-              <ArrowUpRight className="h-5 w-5 shrink-0 text-white/50" />
+              <span aria-hidden className="font-mono text-2xl">
+                ↗
+              </span>
             </a>
           </section>
 
-          {/* organ */}
-          <section id="organ" aria-labelledby="organ-title" className="mt-24 scroll-mt-28">
-            <div className="flex items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-royal-500/15 ring-1 ring-royal-400/30">
-                <HeartHandshake className="h-5 w-5 text-royal-300" />
-              </span>
-              <h2 id="organ-title" className="font-display text-3xl font-semibold tracking-tight">
-                Organ &amp; tissue donation
-              </h2>
-            </div>
+          <section id="organ" aria-labelledby="organ-title" className="mt-28 scroll-mt-24">
+            <h2 id="organ-title" className="display text-[clamp(2.5rem,6vw,5rem)]">
+              Organs and tissue
+            </h2>
 
-            <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_1.2fr]">
-              <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 md:p-8">
-                <p className="font-display text-5xl font-semibold text-royal-300">&lt; 1</p>
-                <p className="mt-2 text-white/70">
-                  deceased organ donor per million people in India — against 48 per million in
-                  Spain. Thousands of patients wait for an organ every year.
+            <div className="mt-10 grid gap-5 lg:grid-cols-[1fr_1.2fr]">
+              <div className="flex flex-col rounded-[18px] bg-plum p-7 md:p-9">
+                <p className="display text-[6rem] leading-none">&lt; 1</p>
+                <p className="mt-4 font-serif text-xl leading-snug">
+                  deceased organ donor per million people in India, against 48 per million in Spain.
                 </p>
-                <p className="mt-6 font-mono text-[10px] uppercase tracking-widest text-white/40">
-                  What one donor can give
+                <a href={LINKS.nottoReport} target="_blank" rel="noopener noreferrer" className={`${linkCls} mt-3 text-bone/75`}>
+                  NOTTO annual report, 2024 <span aria-hidden>↗</span>
+                </a>
+
+                <p className="label mt-10 text-bone/70">What one donor can give</p>
+                <p className="mt-3 font-mono text-[13.5px] leading-relaxed">
+                  {ORGANS.join(", ")}.
+                  <br />
+                  <span className="text-bone/70">Tissue: {TISSUES.join(", ")}.</span>
                 </p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {ORGANS.map((o) => (
-                    <span key={o} className="rounded-full bg-royal-500/15 px-3 py-1 text-sm text-royal-200">
-                      {o}
-                    </span>
-                  ))}
-                  {TISSUES.map((o) => (
-                    <span key={o} className="rounded-full bg-white/[0.06] px-3 py-1 text-sm text-white/65">
-                      {o}
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-6 text-sm leading-relaxed text-white/55">
+                <p className="mt-6 text-[15px] leading-relaxed text-bone/80">
                   Deceased donation happens only after brain-stem death is certified by a board of
-                  doctors under the Transplantation of Human Organs and Tissues Act, 1994. Corneas
-                  and some tissues can also be donated after the heart stops.
+                  doctors under the Transplantation of Human Organs and Tissues Act, 1994. Corneas and
+                  some tissues can also be donated after the heart stops.
                 </p>
-                <a
-                  href={LINKS.notto}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-1 text-sm text-white/60 underline-offset-4 hover:text-white hover:underline"
-                >
-                  Learn more at NOTTO <ArrowUpRight className="h-3.5 w-3.5" />
+                <a href={LINKS.notto} target="_blank" rel="noopener noreferrer" className={`${linkCls} mt-auto pt-8`}>
+                  Learn more at NOTTO <span aria-hidden>↗</span>
                 </a>
               </div>
 
-              <ol className="space-y-4">
+              <ol className="border-t border-bone/15">
                 {PLEDGE_STEPS.map((s, i) => (
-                  <li key={s.title} className="flex gap-4 rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
-                    <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/[0.06] ring-1 ring-white/10">
-                      <s.icon className="h-5 w-5 text-royal-300" strokeWidth={1.7} />
-                      <span className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-royal-500 font-mono text-[10px]">
-                        {i + 1}
-                      </span>
-                    </span>
+                  <li key={s.title} className="grid gap-3 border-b border-bone/15 py-7 sm:grid-cols-[3.5rem_1fr]">
+                    <p className="label text-bone/50">{String(i + 1).padStart(2, "0")}</p>
                     <div>
-                      <p className="font-medium">{s.title}</p>
-                      <p className="mt-1 text-sm leading-relaxed text-white/55">{s.body}</p>
+                      <h3 className="font-serif text-2xl leading-tight">{s.title}</h3>
+                      <p className="mt-2 text-[16px] leading-relaxed text-bone/65">{s.body}</p>
                       {s.href &&
                         (s.href.startsWith("http") ? (
-                          <a href={s.href} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm text-royal-300 underline-offset-4 hover:underline">
-                            {s.cta} <ArrowUpRight className="h-3.5 w-3.5" />
+                          <a href={s.href} target="_blank" rel="noopener noreferrer" className={`${linkCls} mt-4`}>
+                            {s.cta} <span aria-hidden>↗</span>
                           </a>
                         ) : (
-                          <Link href={s.href} className="mt-3 inline-flex items-center gap-1 text-sm text-royal-300 underline-offset-4 hover:underline">
-                            {s.cta} →
+                          <Link href={s.href} className={`${linkCls} mt-4`}>
+                            {s.cta} <span aria-hidden>→</span>
                           </Link>
                         ))}
                     </div>
@@ -172,21 +138,18 @@ export default function DonatePage() {
             </div>
           </section>
 
-          <div className="mt-16 flex max-w-3xl items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/60">
-            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-signal-soft" />
-            <p>
-              Donor status on Patient-Tap is <strong className="text-white">information only</strong>.
-              It is not a legal registration, and it never changes the care anyone receives:
-              responders always treat first. See the{" "}
-              <Link href="/disclaimer" className="underline underline-offset-2 hover:text-white">
-                medical disclaimer
-              </Link>
-              .
-            </p>
-          </div>
+          <p className="mt-16 max-w-3xl border-l-4 border-bone/40 pl-4 font-serif text-lg leading-snug text-bone/75">
+            Donor status on Patient-Tap is <strong className="font-medium text-bone">information only</strong>.
+            It is not a legal registration, and it never changes the care anyone receives. Responders
+            always treat first. See the{" "}
+            <Link href="/disclaimer" className="underline underline-offset-4 hover:text-bone">
+              medical disclaimer
+            </Link>
+            .
+          </p>
         </div>
       </main>
-      <SiteFooter cta={false} />
+      <SiteFooter />
     </>
   );
 }

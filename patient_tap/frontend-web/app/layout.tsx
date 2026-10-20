@@ -2,10 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
-import { Space_Grotesk, Instrument_Serif } from "next/font/google";
+import { Space_Grotesk, Anton, Newsreader, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import { SmoothScroll } from "@/components/providers/smooth-scroll";
-import { Cursor } from "@/components/ui/cursor";
 import { CookieConsent } from "@/components/site/cookie-consent";
 import { ConsentedAnalytics } from "@/components/site/consented-analytics";
 import { absoluteUrl, site } from "@/lib/site";
@@ -17,19 +15,33 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["400", "500", "600", "700"],
 });
 
-// Elegant serif used for lowercase italic emphasis words inside headlines.
-const instrumentSerif = Instrument_Serif({
+// Marketing type system: condensed display caps, a book serif for reading
+// text and a mono for labels.
+const anton = Anton({
   subsets: ["latin"],
   weight: "400",
+  variable: "--font-anton",
+  display: "swap",
+});
+
+const newsreader = Newsreader({
+  subsets: ["latin"],
   style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
+  variable: "--font-newsreader",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — your medical record, sealed. Read in one tap.`,
+    default: `${site.name}: an encrypted medical ID on your wrist`,
     template: `%s · ${site.name}`,
   },
   description: site.description,
@@ -54,12 +66,12 @@ export const metadata: Metadata = {
     siteName: site.name,
     locale: site.locale,
     url: "/",
-    title: `${site.name} — your medical record, sealed. Read in one tap.`,
+    title: `${site.name}: an encrypted medical ID on your wrist`,
     description: site.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} — your medical record, sealed. Read in one tap.`,
+    title: `${site.name}: an encrypted medical ID on your wrist`,
     description: site.description,
   },
   robots: { index: true, follow: true },
@@ -114,12 +126,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang="en-IN"
-      className={`${GeistSans.variable} ${GeistMono.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${spaceGrotesk.variable} ${anton.variable} ${newsreader.variable} ${plexMono.variable}`}
     >
-      <body className="bg-void">
+      <body className="bg-canvas">
         <a
           href="#main"
-          className="fixed left-3 top-3 z-[100] -translate-y-20 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-transform focus:translate-y-0"
+          className="fixed left-3 top-3 z-[100] -translate-y-20 rounded-btn bg-bone px-4 py-2 text-sm font-medium text-black transition-transform focus:translate-y-0"
         >
           Skip to content
         </a>
@@ -129,8 +141,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           // JSON.stringify output with `<` escaped can't break out of the tag.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
         />
-        <Cursor />
-        <SmoothScroll>{children}</SmoothScroll>
+        {children}
         <CookieConsent />
         <ConsentedAnalytics />
       </body>

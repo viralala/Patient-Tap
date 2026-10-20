@@ -31,7 +31,6 @@ export function PillNav({
             <button
               key={it.key}
               onClick={() => onChange(it.key)}
-              data-cursor={isActive ? undefined : it.label.toLowerCase()}
               aria-label={it.label}
               className={cn(
                 "flex items-center gap-2 rounded-pill text-sm font-medium transition-all duration-300 ease-springy",

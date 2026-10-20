@@ -38,7 +38,7 @@ const sections: LegalSection[] = [
         <p>
           {site.name} is a <strong>prototype</strong> built for {site.event}. Features may change,
           break or be removed without notice, and the Service may be unavailable at any time.
-          MedVerify currently uses a <strong>demonstration registry</strong> of fictional brands —
+          MedVerify currently uses a <strong>demonstration registry</strong> of fictional brands, so
           it is not yet connected to any manufacturer or regulator database.
         </p>
       </>
@@ -91,7 +91,7 @@ const sections: LegalSection[] = [
           </li>
           <li>
             A DNR preference or donor status on your tag is <strong>information, not a legal
-            document</strong> — see the <Link href="/disclaimer">medical disclaimer</Link>.
+            document</strong>. See the <Link href="/disclaimer">medical disclaimer</Link>.
           </li>
         </ul>
       </>
@@ -116,7 +116,7 @@ const sections: LegalSection[] = [
         <ul>
           <li>
             A MedVerify result is an aid, <strong>not a guarantee</strong>. A &ldquo;genuine&rdquo;
-            result means the code matched a record — not that the medicine is safe or right for
+            result means the code matched a record, not that the medicine is safe or right for
             you. A warning means you should check with a pharmacist, not that a crime has occurred.
           </li>
           <li>Always buy medicines from licensed pharmacies and keep your bill.</li>
@@ -178,7 +178,7 @@ const sections: LegalSection[] = [
           GitHub
         </a>{" "}
         under the licence stated in the repository. Third-party components are used under their own
-        licences — see <Link href="/licenses">open-source licences</Link>. Health information from
+        licences. See <Link href="/licenses">open-source licences</Link>. Health information from
         public sources is summarised for convenience; it remains the work of its original authors.
       </p>
     ),
@@ -199,7 +199,7 @@ const sections: LegalSection[] = [
     body: (
       <p>
         To the fullest extent permitted by law, the Service is provided &ldquo;as is&rdquo; and
-        &ldquo;as available&rdquo;, without warranties of any kind, express or implied — including
+        &ldquo;as available&rdquo;, without warranties of any kind, express or implied, including
         accuracy, fitness for a particular purpose, uninterrupted availability, or that an NFC tag
         will always be readable. Phones, tags and networks can fail; keep a written copy of
         critical information as well.
@@ -242,7 +242,7 @@ const sections: LegalSection[] = [
       <p>
         You can stop using the Service at any time, and ask us to delete your data under our privacy
         policy. We may suspend or end access for anyone who breaks these terms or puts others at
-        risk. Sections that by their nature should survive — such as liability and governing law —
+        risk. Sections that by their nature should survive, such as liability and governing law,
         continue after termination.
       </p>
     ),
@@ -281,7 +281,7 @@ export default function TermsPage() {
   return (
     <LegalPage
       title="Terms of use"
-      intro={<p>The ground rules for using Patient-Tap — written to be read, not just agreed to.</p>}
+      intro={<p>The ground rules for using Patient-Tap, written to be read and not just agreed to.</p>}
       summary={[
         "Patient-Tap is a prototype information tool, not a medical device or an emergency service. In an emergency, call 112.",
         "You keep your tag accurate. Responders may rely on it.",

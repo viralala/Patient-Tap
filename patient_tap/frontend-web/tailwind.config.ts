@@ -47,7 +47,22 @@ const config: Config = {
           soft: "#3FDFA6",
           deep: "#0B7A55",
         },
-        // Near-black canvas for the holographic redesign.
+        // Marketing site: flat print palette on a soft black canvas.
+        canvas: {
+          DEFAULT: "#191919",
+          raised: "#212121",
+          line: "#2e2e2e",
+        },
+        bone: {
+          DEFAULT: "#FBF8F3",
+          dim: "#A8A49D",
+        },
+        cobalt: "#1E4BD7",
+        scarlet: "#D71E1E",
+        pine: "#0C7866",
+        plum: "#581E70",
+        lemon: "#FFE927",
+        // Near-black canvas used by the web app.
         void: {
           DEFAULT: "#0a0a0b",
           soft: "#101013",
@@ -59,12 +74,14 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         display: ["var(--font-space-grotesk)", "var(--font-geist-sans)", "sans-serif"],
-        serif: ["var(--font-instrument-serif)", "Georgia", "serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        serif: ["var(--font-newsreader)", "Georgia", "serif"],
+        mono: ["var(--font-plex-mono)", "var(--font-geist-mono)", "ui-monospace", "monospace"],
+        condensed: ["var(--font-anton)", "Impact", "sans-serif"],
       },
       borderRadius: {
         card: "22px",
         pill: "999px",
+        btn: "10px",
       },
       maxWidth: {
         shell: "1240px",

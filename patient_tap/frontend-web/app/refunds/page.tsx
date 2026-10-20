@@ -41,8 +41,8 @@ const sections: LegalSection[] = [
           requires, or if we fail to provide the service.
         </li>
         <li>
-          Cancelling never deletes the record on your tag. Free features — reading and writing your
-          own tag offline — keep working.
+          Cancelling never deletes the record on your tag. Free features (reading and writing your
+          own tag offline) keep working.
         </li>
       </ul>
     ),
@@ -85,7 +85,7 @@ const sections: LegalSection[] = [
       <p>
         Use the <Link href="/contact">contact form</Link> or email{" "}
         <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a> with your order reference.
-        Unresolved complaints can go to our Grievance Officer — see the{" "}
+        Unresolved complaints can go to our Grievance Officer. See the{" "}
         <Link href="/privacy#grievance">privacy policy</Link>.
       </p>
     ),

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CameraOff, Loader2 } from "lucide-react";
 
 type Controls = { stop: () => void };
 
@@ -77,39 +76,37 @@ export function CameraScanner({ onCode, active }: { onCode: (text: string) => vo
   }, [active]);
 
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[22px] bg-black">
+    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[14px] bg-black">
       <video ref={video} className="h-full w-full object-cover" muted playsInline aria-label="Camera preview" />
 
       {state === "scanning" && (
         <>
           {/* viewfinder */}
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
-            <div className="relative h-[62%] w-[62%] max-w-[300px] rounded-3xl shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]">
-              {["left-0 top-0 border-l-2 border-t-2 rounded-tl-3xl", "right-0 top-0 border-r-2 border-t-2 rounded-tr-3xl", "left-0 bottom-0 border-l-2 border-b-2 rounded-bl-3xl", "right-0 bottom-0 border-r-2 border-b-2 rounded-br-3xl"].map((c) => (
-                <span key={c} className={`absolute h-8 w-8 border-signal ${c}`} />
+            <div className="relative h-[62%] w-[62%] max-w-[300px] rounded-xl shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]">
+              {["left-0 top-0 border-l-2 border-t-2 rounded-tl-xl", "right-0 top-0 border-r-2 border-t-2 rounded-tr-xl", "left-0 bottom-0 border-l-2 border-b-2 rounded-bl-xl", "right-0 bottom-0 border-r-2 border-b-2 rounded-br-xl"].map((c) => (
+                <span key={c} className={`absolute h-8 w-8 border-lemon ${c}`} />
               ))}
-              <span className="scan-sweep absolute inset-x-3 top-2 h-0.5 bg-signal shadow-[0_0_16px_3px_rgba(18,197,139,0.6)] [--sweep:calc(100%-1rem)]" />
+              <span className="scan-sweep absolute inset-x-3 top-2 h-0.5 bg-lemon [--sweep:calc(100%-1rem)]" />
             </div>
           </div>
-          <p className="absolute inset-x-0 bottom-4 text-center text-sm text-white/80">
+          <p className="absolute inset-x-0 bottom-4 text-center font-mono text-xs uppercase tracking-wide text-bone/85">
             Point at the QR code on the strip or box
           </p>
         </>
       )}
 
       {state === "starting" && (
-        <div className="absolute inset-0 grid place-items-center text-white/70">
-          <span className="flex items-center gap-2 text-sm">
-            <Loader2 className="h-4 w-4 animate-spin" /> Starting camera…
-          </span>
+        <div className="absolute inset-0 grid place-items-center text-bone/75">
+          <span className="label">Starting camera…</span>
         </div>
       )}
 
       {state === "error" && (
         <div className="absolute inset-0 grid place-items-center p-8 text-center">
           <div>
-            <CameraOff className="mx-auto h-8 w-8 text-white/50" />
-            <p className="mt-3 max-w-xs text-sm text-white/70">{error}</p>
+            <p className="label text-bone/55">Camera unavailable</p>
+            <p className="mt-3 max-w-xs text-sm text-bone/75">{error}</p>
           </div>
         </div>
       )}

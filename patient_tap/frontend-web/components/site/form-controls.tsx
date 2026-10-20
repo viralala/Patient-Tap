@@ -4,7 +4,7 @@ import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 export const inputClass =
-  "w-full rounded-2xl border border-white/12 bg-white/[0.04] px-4 py-3 text-[15px] text-white outline-hidden transition-colors placeholder:text-white/30 focus:border-royal-400 focus:bg-white/[0.06] aria-[invalid=true]:border-critical/70";
+  "w-full rounded-btn border border-bone/20 bg-black/15 px-4 py-3 text-[15px] text-bone outline-hidden transition-colors placeholder:text-bone/35 focus:border-bone aria-[invalid=true]:border-lemon";
 
 export function FieldLabel({
   label,
@@ -20,12 +20,12 @@ export function FieldLabel({
   const id = useId();
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-white/80">
+      <label htmlFor={id} className="label text-bone/75">
         {label}
-        {optional && <span className="ml-1.5 font-normal text-white/35">(optional)</span>}
+        {optional && <span className="ml-1.5 text-bone/45">(optional)</span>}
       </label>
       {children(id)}
-      {hint && <p className="text-xs text-white/40">{hint}</p>}
+      {hint && <p className="text-xs text-bone/50">{hint}</p>}
     </div>
   );
 }
@@ -42,13 +42,13 @@ export function Checkbox({
   required?: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-white/60">
+    <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-bone/70">
       <input
         type="checkbox"
         checked={checked}
         required={required}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-1 h-4 w-4 shrink-0 accent-[#5E7DEE]"
+        className="mt-1 h-4 w-4 shrink-0 accent-[#FFE927]"
       />
       <span>{children}</span>
     </label>
@@ -86,11 +86,12 @@ export function FormStatus({
   return (
     <div aria-live="polite" className="min-h-[1.25rem]">
       {status === "error" && error && (
-        <p role="alert" className="text-sm text-critical-soft">
+        <p role="alert" className="text-sm text-bone">
+          <span className="label mr-2 bg-lemon px-1.5 py-0.5 text-canvas">Error</span>
           {error}
         </p>
       )}
-      {status === "done" && <div className="text-sm text-signal-soft">{success}</div>}
+      {status === "done" && <div className="text-sm text-bone">{success}</div>}
     </div>
   );
 }
@@ -108,15 +109,10 @@ export function SubmitButton({
     <button
       type="submit"
       disabled={sending}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-transform duration-300 hover:scale-[1.03] disabled:pointer-events-none disabled:opacity-60",
-        className,
-      )}
+      className={cn("btn btn-solid disabled:pointer-events-none disabled:opacity-60", className)}
     >
-      {sending && (
-        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/25 border-t-black" />
-      )}
-      {children}
+      <span>{sending ? "Sending" : children}</span>
+      <span aria-hidden>{sending ? "…" : "→"}</span>
     </button>
   );
 }

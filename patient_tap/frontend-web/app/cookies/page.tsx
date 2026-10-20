@@ -49,10 +49,10 @@ const sections: LegalSection[] = [
           </tr>
           <tr>
             <td>Vercel Web Analytics</td>
-            <td>No cookie — counts are derived from the request and reset daily</td>
+            <td>No cookie. Counts are derived from the request and reset daily</td>
             <td>Aggregate page views (no query strings)</td>
             <td>Not stored on your device</td>
-            <td>Analytics — only if you opt in</td>
+            <td>Analytics, only if you opt in</td>
           </tr>
         </tbody>
       </table>
@@ -73,7 +73,7 @@ const sections: LegalSection[] = [
     title: "Third-party sites",
     body: (
       <p>
-        If you follow a link to another site — such as GitHub, e-RaktKosh or NOTTO — that site may
+        If you follow a link to another site, such as GitHub, e-RaktKosh or NOTTO, that site may
         set its own cookies under its own policy.
       </p>
     ),

@@ -167,7 +167,7 @@ export function ProfileForm({ onSaved }: { onSaved: () => void }) {
             <DonorToggle
               icon={HeartHandshake}
               label="Pledged organ donor"
-              hint={draft.organDonor ? "Pledge noted — register it with NOTTO too" : "Off"}
+              hint={draft.organDonor ? "Pledge noted. Register it with NOTTO too" : "Off"}
               value={Boolean(draft.organDonor)}
               onChange={(organDonor) => patch({ organDonor })}
             />
