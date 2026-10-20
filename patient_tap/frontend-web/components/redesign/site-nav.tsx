@@ -3,30 +3,20 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ArrowUpRight } from "lucide-react";
-import { LogoMark } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { label: "How it works", href: "/#how" },
-  { label: "MedVerify", href: "/verify", badge: "New" },
+  { label: "MedVerify", href: "/verify" },
   { label: "Donate", href: "/donate" },
-  { label: "Pricing", href: "/#pricing" },
+  { label: "Plans", href: "/#plans" },
   { label: "FAQ", href: "/#faq" },
 ];
 
-/** Floating dark nav shared by every page: logo · links · CTA, with a mobile sheet. */
+/** Top bar shared by every marketing page: links · wordmark · app link. */
 export function SiteNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // Close the sheet on navigation and on Escape; lock page scroll while open.
   useEffect(() => setOpen(false), [pathname]);
@@ -44,105 +34,68 @@ export function SiteNav() {
   const isActive = (href: string) => !href.includes("#") && pathname === href;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
-      <div
-        className={cn(
-          "transition-[background-color,backdrop-filter,border-color] duration-500",
-          scrolled || open
-            ? "border-b border-white/[0.06] bg-void/75 backdrop-blur-xl"
-            : "border-b border-transparent",
-        )}
-      >
-        <div className="shell flex items-center justify-between gap-6 py-4">
-          <Link href="/" aria-label="Patient-Tap home" className="flex shrink-0 items-center gap-2">
-            <LogoMark className="h-6 w-6" />
-            <span className="font-sans text-[15px] font-semibold tracking-tight text-white">
-              Patient<span className="text-royal-400">·</span>Tap
-            </span>
-          </Link>
-
-          <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
-            {LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                aria-current={isActive(l.href) ? "page" : undefined}
-                className={cn(
-                  "relative rounded-full px-3.5 py-2 text-sm transition-colors duration-300",
-                  isActive(l.href) ? "bg-white/10 text-white" : "text-white/60 hover:text-white",
-                )}
-              >
-                {l.label}
-                {l.badge && (
-                  <span className="ml-1.5 rounded-full bg-signal/20 px-1.5 py-0.5 align-middle font-mono text-[9px] uppercase tracking-wider text-signal-soft">
-                    {l.badge}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-bone/10 bg-canvas/90 text-bone backdrop-blur-md">
+      <div className="shell grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-4">
+        <nav aria-label="Main" className="hidden items-center gap-6 lg:flex">
+          {LINKS.map((l) => (
             <Link
-              href="/app"
-              data-cursor="open"
-              className="hidden rounded-full bg-white px-5 py-2 text-sm font-medium text-black transition-transform duration-300 hover:scale-[1.04] sm:inline-flex"
+              key={l.href}
+              href={l.href}
+              aria-current={isActive(l.href) ? "page" : undefined}
+              className={cn(
+                "line-link text-[15px]",
+                isActive(l.href) ? "text-bone" : "text-bone/65 hover:text-bone",
+              )}
             >
-              Launch app
+              {l.label}
             </Link>
-            <button
-              type="button"
-              onClick={() => setOpen((o) => !o)}
-              aria-expanded={open}
-              aria-controls="mobile-nav"
-              aria-label={open ? "Close menu" : "Open menu"}
-              className="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-white transition-colors hover:bg-white/10 lg:hidden"
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
+          ))}
+        </nav>
+        <span className="lg:hidden" />
+
+        <Link href="/" aria-label="Patient-Tap home" className="display text-[28px] leading-none tracking-[0.01em]">
+          Patient-Tap
+        </Link>
+
+        <div className="flex items-center justify-end gap-5">
+          <Link href="/app" className="arrow-link hidden text-[15px] text-bone transition-colors hover:text-lemon sm:inline">
+            Open the app <span aria-hidden className="arr">→</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            className="label py-2 text-bone lg:hidden"
+          >
+            {open ? "Close ×" : "Menu +"}
+          </button>
         </div>
       </div>
 
-      {/* mobile sheet */}
-      <div
-        id="mobile-nav"
-        hidden={!open}
-        className="h-[calc(100dvh-73px)] overflow-y-auto bg-void/95 backdrop-blur-xl lg:hidden"
-      >
-        <nav aria-label="Mobile" className="shell flex flex-col gap-1 py-6">
+      <div id="mobile-nav" hidden={!open} className="h-[calc(100dvh-4rem)] overflow-y-auto bg-canvas lg:hidden">
+        <nav aria-label="Mobile" className="shell flex flex-col py-4">
           {LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="flex items-center justify-between border-b border-white/[0.07] py-4 font-sans text-2xl font-semibold tracking-tight text-white"
+              className="display flex items-center justify-between border-b border-bone/10 py-5 text-5xl"
             >
-              <span>
-                {l.label}
-                {l.badge && (
-                  <span className="ml-2 rounded-full bg-signal/20 px-2 py-0.5 align-middle font-mono text-[10px] uppercase tracking-wider text-signal-soft">
-                    {l.badge}
-                  </span>
-                )}
-              </span>
-              <ArrowUpRight className="h-5 w-5 text-white/40" />
+              {l.label}
+              <span aria-hidden className="font-mono text-base">↗</span>
             </Link>
           ))}
-          <Link
-            href="/app"
-            onClick={() => setOpen(false)}
-            className="mt-6 rounded-full bg-white py-3.5 text-center text-sm font-medium text-black"
-          >
-            Launch the app
-          </Link>
-          <Link
-            href="/contact"
-            onClick={() => setOpen(false)}
-            className="rounded-full border border-white/20 py-3.5 text-center text-sm font-medium text-white"
-          >
-            Contact us
-          </Link>
+          <div className="mt-8 flex flex-col gap-3">
+            <Link href="/app" onClick={() => setOpen(false)} className="btn btn-solid justify-between">
+              <span>Open the app</span>
+              <span aria-hidden>→</span>
+            </Link>
+            <Link href="/contact" onClick={() => setOpen(false)} className="btn btn-line justify-between">
+              <span>Contact us</span>
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
         </nav>
       </div>
     </header>

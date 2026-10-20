@@ -11,7 +11,7 @@ const schema = z.object({
   message: z
     .string()
     .trim()
-    .min(10, "Your message is a little short — add a few more details.")
+    .min(10, "Your message is a little short. Add a few more details.")
     .max(4000, "Please keep your message under 4,000 characters."),
   consent: z.literal(true, "Please agree to the privacy notice so we can reply."),
 });
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   const g = await guardPost(req, schema, { bucket: "contact", burst: 4, minFillMs: 2500 });
   if (!g.ok) return g.response;
   if (!isBackendConfigured()) {
-    return json({ ok: false, error: "The contact form is offline — please email us instead." }, 503);
+    return json({ ok: false, error: "The contact form is offline. Please email us instead." }, 503);
   }
 
   const { error } = await rpc("send_contact_message", {

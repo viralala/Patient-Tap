@@ -36,7 +36,7 @@ export function DnrToggle({
             Do Not Resuscitate
           </span>
           <span className="block text-xs text-ink/45">
-            {value ? "Flagged — shown loudest to responders" : "Off"}
+            {value ? "Flagged, shown loudest to responders" : "Off"}
           </span>
         </span>
       </span>

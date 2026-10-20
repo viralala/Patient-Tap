@@ -22,11 +22,11 @@ export type TagWriteError = "moved" | "full" | "unknown";
 export function tagWriteErrorMessage(e: TagWriteError): string {
   switch (e) {
     case "moved":
-      return "Tag moved — hold the phone steady on the wristband and try again.";
+      return "Tag moved. Hold the phone steady on the wristband and try again.";
     case "full":
-      return "Tag full — trim old treatment-log entries to free space.";
+      return "Tag full. Trim old treatment-log entries to free space.";
     default:
-      return "Write failed — try again.";
+      return "Write failed. Try again.";
   }
 }
 

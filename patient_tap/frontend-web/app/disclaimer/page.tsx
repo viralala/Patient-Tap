@@ -111,7 +111,7 @@ const sections: LegalSection[] = [
       <p>
         The app can warn when a medicine may conflict with an allergy or another medicine on your
         profile. The checks are limited and can miss interactions or raise false alarms. They
-        support — never replace — a pharmacist&apos;s or doctor&apos;s review.
+        support, and never replace, a pharmacist&apos;s or doctor&apos;s review.
       </p>
     ),
   },

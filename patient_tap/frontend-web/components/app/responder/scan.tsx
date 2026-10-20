@@ -66,7 +66,7 @@ export function ResponderScan({
               Verification failed
             </h2>
             <p className="mt-2 max-w-xs text-sm text-ink/55">
-              The AES-256-GCM auth tag did not match — this record was corrupted
+              The AES-256-GCM auth tag did not match. This record was corrupted
               or tampered with. Do not trust its contents.
             </p>
           </>
@@ -87,7 +87,7 @@ export function ResponderScan({
             <p className="mt-2 max-w-xs text-sm text-ink/55">
               {scanning
                 ? "Decrypting the record on the NTAG215."
-                : "Tap to read and decrypt the patient's record — no network required."}
+                : "Tap to read and decrypt the patient's record. No network required."}
             </p>
           </>
         )}

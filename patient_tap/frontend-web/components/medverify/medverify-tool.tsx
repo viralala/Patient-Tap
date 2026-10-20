@@ -1,22 +1,22 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { Camera, ImageUp, Keyboard, Search, Loader2, Printer, ScanLine } from "lucide-react";
 import { CameraScanner, decodeImageFile } from "./camera-scanner";
 import { MedicineDetails, VerifyResultView } from "./verify-result";
 import { QrCode } from "./qr-code";
 import { FieldLabel, inputClass } from "@/components/site/form-controls";
 import { postJson } from "@/lib/forms";
+import { Button } from "@/components/ui/button";
 import { DEMO_PACKS, VERDICT_META, type Medicine, type VerifyResult } from "@/lib/medverify/types";
 import { cn } from "@/lib/utils";
 
 type Mode = "camera" | "photo" | "manual" | "search";
 
-const MODES: { id: Mode; label: string; icon: typeof Camera }[] = [
-  { id: "camera", label: "Scan", icon: Camera },
-  { id: "photo", label: "Photo", icon: ImageUp },
-  { id: "manual", label: "Type code", icon: Keyboard },
-  { id: "search", label: "Search", icon: Search },
+const MODES: { id: Mode; label: string }[] = [
+  { id: "camera", label: "Scan" },
+  { id: "photo", label: "Photo" },
+  { id: "manual", label: "Type code" },
+  { id: "search", label: "Search" },
 ];
 
 export function MedVerifyTool() {
@@ -50,8 +50,8 @@ export function MedVerifyTool() {
   return (
     <div className="grid gap-10 lg:grid-cols-[1.05fr_1fr]">
       {/* input */}
-      <div className="no-print rounded-[28px] border border-white/10 bg-white/[0.03] p-5 md:p-7">
-        <div role="tablist" aria-label="How to check" className="grid grid-cols-4 gap-1 rounded-full border border-white/10 bg-black/30 p-1">
+      <div className="no-print rounded-[18px] border border-bone/15 p-5 md:p-7">
+        <div role="tablist" aria-label="How to check" className="grid grid-cols-4 gap-1 rounded-btn border border-bone/20 p-1">
           {MODES.map((m) => (
             <button
               key={m.id}
@@ -64,12 +64,11 @@ export function MedVerifyTool() {
                 setError("");
               }}
               className={cn(
-                "flex items-center justify-center gap-1.5 rounded-full px-2 py-2 text-[13px] font-medium transition-colors",
-                mode === m.id ? "bg-white text-black" : "text-white/60 hover:text-white",
+                "label rounded-[7px] px-1 py-2.5 transition-colors",
+                mode === m.id ? "bg-bone text-canvas" : "text-bone/60 hover:text-bone",
               )}
             >
-              <m.icon className="h-4 w-4" />
-              <span className="hidden sm:inline">{m.label}</span>
+              {m.label}
             </button>
           ))}
         </div>
@@ -83,15 +82,12 @@ export function MedVerifyTool() {
                 <button
                   type="button"
                   onClick={() => setCameraOn(true)}
-                  className="grid aspect-[4/3] w-full place-items-center rounded-[22px] border border-dashed border-white/20 bg-black/30 text-white/70 transition-colors hover:border-white/40"
+                  className="grid aspect-[4/3] w-full place-items-center rounded-[14px] border border-dashed border-bone/25 bg-black/20 text-bone transition-colors hover:border-bone/60"
                 >
-                  <span className="flex flex-col items-center gap-2">
-                    <ScanLine className="h-8 w-8" />
-                    <span className="text-sm">Start camera</span>
-                  </span>
+                  <span className="label">[ Start camera ]</span>
                 </button>
               )}
-              <p className="mt-3 text-xs text-white/40">
+              <p className="mt-3 font-mono text-xs text-bone/50">
                 Video is processed in your browser and never uploaded. Only the decoded code is checked.
               </p>
             </div>
@@ -103,12 +99,11 @@ export function MedVerifyTool() {
         </div>
 
         {busy && (
-          <p className="mt-5 flex items-center gap-2 text-sm text-white/60">
-            <Loader2 className="h-4 w-4 animate-spin" /> Checking the registry…
-          </p>
+          <p className="label mt-5 text-bone/65">Checking the registry…</p>
         )}
         {error && (
-          <p role="alert" className="mt-5 text-sm text-critical-soft">
+          <p role="alert" className="mt-5 text-sm text-bone">
+            <span className="label mr-2 bg-lemon px-1.5 py-0.5 text-canvas">Error</span>
             {error}
           </p>
         )}
@@ -119,12 +114,11 @@ export function MedVerifyTool() {
         {result ? (
           <VerifyResultView result={result} onReset={reset} />
         ) : (
-          <div className="flex h-full min-h-[320px] flex-col justify-center rounded-[28px] border border-white/10 bg-white/[0.02] p-8 text-center">
-            <ScanLine className="mx-auto h-10 w-10 text-white/25" />
-            <p className="mt-4 font-display text-xl font-semibold">Your result will appear here</p>
-            <p className="mx-auto mt-2 max-w-sm text-sm text-white/50">
-              No medicine to hand? Use one of the demo packs below — scan it from another screen, or
-              tap &ldquo;Check this pack&rdquo;.
+          <div className="flex h-full min-h-[320px] flex-col justify-center rounded-[18px] border border-dashed border-bone/20 p-8 text-center">
+            <p className="font-serif text-2xl">Your result will appear here</p>
+            <p className="mx-auto mt-2 max-w-sm text-[15px] text-bone/55">
+              No medicine to hand? Scan a demo pack below from another screen, or press
+              &ldquo;Check this pack&rdquo;.
             </p>
           </div>
         )}
@@ -139,10 +133,9 @@ function PhotoInput({ onCode, onError }: { onCode: (c: string) => void; onError:
   const [reading, setReading] = useState(false);
   return (
     <div>
-      <label className="grid aspect-[4/3] w-full cursor-pointer place-items-center rounded-[22px] border border-dashed border-white/20 bg-black/30 text-white/70 transition-colors hover:border-white/40">
-        <span className="flex flex-col items-center gap-2 px-6 text-center">
-          {reading ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImageUp className="h-8 w-8" />}
-          <span className="text-sm">{reading ? "Reading the code…" : "Take or choose a photo of the QR code"}</span>
+      <label className="grid aspect-[4/3] w-full cursor-pointer place-items-center rounded-[14px] border border-dashed border-bone/25 bg-black/20 text-bone transition-colors hover:border-bone/60">
+        <span className="label px-6 text-center">
+          {reading ? "Reading the code…" : "[ Take or choose a photo of the QR code ]"}
         </span>
         <input
           type="file"
@@ -162,7 +155,7 @@ function PhotoInput({ onCode, onError }: { onCode: (c: string) => void; onError:
           }}
         />
       </label>
-      <p className="mt-3 text-xs text-white/40">The photo is decoded on your device and is never uploaded.</p>
+      <p className="mt-3 font-mono text-xs text-bone/50">The photo is decoded on your device and is never uploaded.</p>
     </div>
   );
 }
@@ -216,14 +209,10 @@ function ManualInput({ onSubmit, busy }: { onSubmit: (b: Record<string, unknown>
         </div>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="submit"
-          disabled={busy}
-          className="rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-transform hover:scale-[1.03] disabled:opacity-60"
-        >
+        <Button type="submit" disabled={busy}>
           Verify
-        </button>
-        <button type="button" onClick={() => setFields((f) => !f)} className="text-sm text-white/55 underline-offset-4 hover:text-white hover:underline">
+        </Button>
+        <button type="button" onClick={() => setFields((f) => !f)} className="text-sm text-bone/60 underline-offset-4 hover:text-bone hover:underline">
           {fields ? "Paste the full code instead" : "Enter fields separately"}
         </button>
       </div>
@@ -265,25 +254,28 @@ function NameSearch() {
           placeholder="Brand or generic name, e.g. paracetamol"
           className={inputClass}
         />
-        <button type="submit" disabled={busy} className="shrink-0 rounded-2xl bg-white px-5 text-sm font-medium text-black disabled:opacity-60">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
+        <button type="submit" disabled={busy} className="btn btn-solid shrink-0 disabled:opacity-60">
+          <span>{busy ? "…" : "Search"}</span>
         </button>
       </form>
-      <p className="mt-3 text-xs text-white/40">Search shows what a medicine is — it can&apos;t tell you whether a pack is genuine. Scan for that.</p>
-      {error && <p className="mt-3 text-sm text-critical-soft">{error}</p>}
+      <p className="mt-3 font-mono text-xs text-bone/50">Search shows what a medicine is. It can&apos;t tell you whether a pack is genuine, so scan for that.</p>
+      {error && <p className="mt-3 text-sm text-bone">{error}</p>}
       {results && (
         <ul className="mt-5 space-y-3">
-          {results.length === 0 && <li className="text-sm text-white/50">No matches in the demo registry.</li>}
+          {results.length === 0 && <li className="text-sm text-bone/55">No matches in the demo registry.</li>}
           {results.map((m) => (
             <li key={m.gtin}>
               <button
                 type="button"
                 onClick={() => setOpen(open === m.gtin ? null : m.gtin)}
                 aria-expanded={open === m.gtin}
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left transition-colors hover:border-white/25"
+                className="flex w-full items-baseline justify-between gap-3 rounded-btn border border-bone/15 px-4 py-3 text-left transition-colors hover:border-bone/40"
               >
-                <span className="font-medium">{m.brandName}</span>
-                <span className="ml-2 text-sm text-white/50">{m.genericName}</span>
+                <span>
+                  <span className="font-serif text-lg">{m.brandName}</span>
+                  <span className="ml-2 text-sm text-bone/55">{m.genericName}</span>
+                </span>
+                <span aria-hidden className="font-mono text-bone/50">{open === m.gtin ? "−" : "+"}</span>
               </button>
               {open === m.gtin && (
                 <div className="mt-3">
@@ -303,38 +295,34 @@ function DemoPacks({ onCheck, busy }: { onCheck: (code: string) => void; busy: b
     <section id="demo-packs" aria-labelledby="demo-packs-title" className="scroll-mt-28 lg:col-span-2">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 id="demo-packs-title" className="font-display text-2xl font-semibold tracking-tight">
+          <h2 id="demo-packs-title" className="display text-[clamp(2.5rem,6vw,5rem)]">
             Demo packs
           </h2>
-          <p className="mt-1 max-w-xl text-sm text-white/50">
+          <p className="mt-3 max-w-xl text-[15px] text-bone/60">
             Six fictional packs, one for each verdict. Scan a QR with another phone, print them for a
             live demo, or tap a card to check it here.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="no-print inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm text-white transition-colors hover:border-white/50"
-        >
-          <Printer className="h-4 w-4" /> Print packs
-        </button>
+        <Button onClick={() => window.print()} variant="line" glyph="⎙" className="no-print">
+          Print packs
+        </Button>
       </div>
       <ul className="print-packs mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {DEMO_PACKS.map((p) => {
           const tone = VERDICT_META[p.expect].tone;
           return (
-            <li key={p.id} className="print-pack flex gap-4 rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+            <li key={p.id} className="print-pack flex gap-4 rounded-[18px] border border-bone/15 p-4">
               <QrCode value={p.code} size={112} className="shrink-0 rounded-lg" label={`QR code for the ${p.title} demo pack`} />
               <div className="flex min-w-0 flex-col">
-                <p className="font-medium">{p.title}</p>
-                <p className="text-sm text-white/50">{p.brand}</p>
+                <p className="font-serif text-lg leading-tight">{p.title}</p>
+                <p className="text-sm text-bone/55">{p.brand}</p>
                 <span
                   className={cn(
-                    "mt-2 w-fit rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider",
-                    tone === "safe" && "bg-signal/15 text-signal-soft",
-                    tone === "warn" && "bg-amber-400/15 text-amber-200",
-                    tone === "danger" && "bg-critical/15 text-critical-soft",
-                    tone === "neutral" && "bg-white/10 text-white/60",
+                    "label mt-2 w-fit px-1.5 py-0.5 text-[10px]",
+                    tone === "safe" && "bg-pine text-bone",
+                    tone === "warn" && "bg-lemon text-canvas",
+                    tone === "danger" && "bg-scarlet text-bone",
+                    tone === "neutral" && "border border-bone/30 text-bone/70",
                   )}
                 >
                   Expect: {VERDICT_META[p.expect].label}
@@ -343,9 +331,9 @@ function DemoPacks({ onCheck, busy }: { onCheck: (code: string) => void; busy: b
                   type="button"
                   disabled={busy}
                   onClick={() => onCheck(p.code)}
-                  className="no-print mt-auto w-fit pt-3 text-sm text-royal-300 underline-offset-4 hover:underline disabled:opacity-50"
+                  className="label no-print mt-auto w-fit pt-3 text-bone underline-offset-4 hover:underline disabled:opacity-50"
                 >
-                  Check this pack →
+                  Check this pack <span aria-hidden>→</span>
                 </button>
               </div>
             </li>

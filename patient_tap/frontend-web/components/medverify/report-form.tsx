@@ -37,8 +37,8 @@ export function ReportForm({ parsed }: { parsed: Partial<PackCode> }) {
 
   if (status === "done") {
     return (
-      <div className="rounded-[22px] border border-signal/30 bg-signal/[0.06] p-5 text-sm text-white/75">
-        <p className="font-medium text-white">Thanks — your report is in.</p>
+      <div className="rounded-[18px] bg-pine p-6 text-[15px] text-bone/85">
+        <p className="font-serif text-2xl text-bone">Thanks, your report is in.</p>
         <p className="mt-1">
           For official action, also tell your State Drug Controller or the{" "}
           <a href="https://cdsco.gov.in" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
@@ -51,16 +51,16 @@ export function ReportForm({ parsed }: { parsed: Partial<PackCode> }) {
   }
 
   return (
-    <form onSubmit={submit} className="relative space-y-4 rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
-      <p className="font-medium">Report this medicine</p>
-      <p className="-mt-2 text-sm text-white/50">
-        Anonymous. We store the pack code, your answers and a hashed network address — nothing else.
+    <form onSubmit={submit} className="relative space-y-4 rounded-[18px] border border-bone/15 p-6">
+      <p className="font-serif text-2xl">Report this medicine</p>
+      <p className="-mt-2 text-sm text-bone/55">
+        Anonymous. We store the pack code, your answers and a hashed network address. Nothing else.
       </p>
       <FieldLabel label="What's wrong?">
         {(id) => (
           <select id={id} value={reason} onChange={(e) => setReason(e.target.value as ReportReason)} className={inputClass}>
             {REPORT_REASONS.map((r) => (
-              <option key={r} value={r} className="bg-[#141417]">
+              <option key={r} value={r} className="bg-canvas">
                 {REPORT_REASON_LABELS[r]}
               </option>
             ))}
@@ -84,7 +84,7 @@ export function ReportForm({ parsed }: { parsed: Partial<PackCode> }) {
           {(id) => <input id={id} maxLength={80} value={city} onChange={(e) => setCity(e.target.value)} className={inputClass} />}
         </FieldLabel>
       </div>
-      <p className="text-xs text-white/40">Please don&apos;t include names, phone numbers or health details.</p>
+      <p className="font-mono text-xs text-bone/50">Please don&apos;t include names, phone numbers or health details.</p>
       <Honeypot value={website} onChange={setWebsite} />
       <div className="flex flex-wrap items-center gap-4">
         <SubmitButton sending={status === "sending"}>Send report</SubmitButton>

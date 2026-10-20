@@ -72,7 +72,7 @@ export function DecryptedProfile({
           </p>
           <p className="font-mono text-xs text-ink/45">
             {profile.patientId} · updated{" "}
-            {profile.updatedAt ? formatRelative(profile.updatedAt) : "—"}
+            {profile.updatedAt ? formatRelative(profile.updatedAt) : "never"}
           </p>
         </div>
       </Card>
@@ -82,7 +82,7 @@ export function DecryptedProfile({
         <div className="mt-4 flex items-center gap-3 rounded-card bg-critical px-5 py-4 text-white card-shadow">
           <HeartPulse className="h-6 w-6 shrink-0" strokeWidth={2.2} />
           <div>
-            <p className="font-display text-lg font-semibold leading-tight">DNR — Do Not Resuscitate</p>
+            <p className="font-display text-lg font-semibold leading-tight">DNR: Do Not Resuscitate</p>
             <p className="text-xs text-white/80">Directive present on this record.</p>
           </div>
         </div>

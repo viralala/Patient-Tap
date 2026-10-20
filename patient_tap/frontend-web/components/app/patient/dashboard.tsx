@@ -40,7 +40,6 @@ export function PatientDashboard({
 
       {/* identity card */}
       <Card className="relative overflow-hidden">
-        <div className="glow-royal absolute inset-0 opacity-[0.06]" />
         <div className="relative flex items-center gap-4">
           <div className="grid h-14 w-14 place-items-center rounded-2xl bg-royal-500 font-display text-xl font-semibold text-white">
             {initials || "?"}
@@ -50,7 +49,7 @@ export function PatientDashboard({
               {profile.name || "Unnamed patient"}
             </p>
             <p className="font-mono text-xs text-ink/45">
-              {profile.patientId} · updated {profile.updatedAt ? formatRelative(profile.updatedAt) : "—"}
+              {profile.patientId} · updated {profile.updatedAt ? formatRelative(profile.updatedAt) : "never"}
             </p>
           </div>
         </div>

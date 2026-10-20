@@ -46,7 +46,7 @@ const sections: LegalSection[] = [
     title: "Your tag arrives blank",
     body: (
       <p>
-        Every wristband, card and keychain ships <strong>empty and unprinted</strong> — no name or
+        Every wristband, card and keychain ships <strong>empty and unprinted</strong>, with no name or
         number on the outside. You write your own encrypted record with the app after it arrives,
         so your health data never travels through the post.
       </p>
@@ -58,7 +58,7 @@ const sections: LegalSection[] = [
     body: (
       <p>
         If your order hasn&apos;t arrived within 10 business days of dispatch, or arrives damaged,{" "}
-        <Link href="/contact">contact us</Link> and we will trace it, replace it or refund you — see
+        <Link href="/contact">contact us</Link> and we will trace it, replace it or refund you. See
         the <Link href="/refunds">refund policy</Link>.
       </p>
     ),
@@ -69,7 +69,7 @@ export default function ShippingPage() {
   return (
     <LegalPage
       title="Shipping & delivery policy"
-      intro={<p>How your wristband will get to you — and why it arrives blank.</p>}
+      intro={<p>How your wristband will get to you, and why it arrives blank.</p>}
       sections={sections}
     />
   );

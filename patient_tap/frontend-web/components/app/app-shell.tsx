@@ -56,7 +56,7 @@ export function AppShell({
         <header className="flex shrink-0 items-center justify-between gap-3 border-b border-paper-line px-4 py-3">
           <Link
             href="/"
-            data-cursor="home"
+           
             className="flex items-center gap-2 rounded-pill py-1 pl-1 pr-3 transition-colors hover:bg-paper-sunk"
           >
             <span className="grid h-8 w-8 place-items-center rounded-full bg-paper-sunk text-ink/60">
