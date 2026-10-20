@@ -6,6 +6,8 @@ import { Space_Grotesk, Anton, Newsreader, IBM_Plex_Mono } from "next/font/googl
 import "./globals.css";
 import { CookieConsent } from "@/components/site/cookie-consent";
 import { ConsentedAnalytics } from "@/components/site/consented-analytics";
+import { Loader } from "@/components/site/loader";
+import { RevealObserver } from "@/components/ui/reveal-observer";
 import { absoluteUrl, site } from "@/lib/site";
 
 const spaceGrotesk = Space_Grotesk({
@@ -126,9 +128,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang="en-IN"
+      // The loader script below adds a class before React hydrates.
+      suppressHydrationWarning
       className={`${GeistSans.variable} ${GeistMono.variable} ${spaceGrotesk.variable} ${anton.variable} ${newsreader.variable} ${plexMono.variable}`}
     >
       <body className="bg-canvas">
+        {/* Show the loader once per browser session. Runs before the loader paints. */}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var s=sessionStorage;if(s.getItem('pt-seen'))document.documentElement.classList.add('pt-seen');else s.setItem('pt-seen','1')}catch(e){}",
+          }}
+        />
+        <Loader />
         <a
           href="#main"
           className="fixed left-3 top-3 z-[100] -translate-y-20 rounded-btn bg-bone px-4 py-2 text-sm font-medium text-black transition-transform focus:translate-y-0"
@@ -142,6 +155,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
         />
         {children}
+        <RevealObserver />
         <CookieConsent />
         <ConsentedAnalytics />
       </body>

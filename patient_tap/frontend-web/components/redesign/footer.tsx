@@ -50,7 +50,7 @@ const COLS = [
 ];
 
 const isExternal = (href: string) => /^https?:\/\//.test(href);
-const linkCls = "text-[15px] text-bone/65 transition-colors hover:text-bone";
+const linkCls = "line-link text-[15px] text-bone/65 hover:text-bone";
 
 export function SiteFooter() {
   return (

@@ -364,3 +364,191 @@
     color: #000 !important;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Motion: scroll reveals, hover states, loader, NFC card                     */
+/* -------------------------------------------------------------------------- */
+
+/* Scroll reveal. Only hidden once JS has marked the page ready, so content is
+   never stuck invisible. `--d` staggers siblings by 90ms each. */
+[data-reveal] {
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--d, 0) * 90ms);
+}
+.reveal-ready [data-reveal]:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(32px);
+}
+
+/* Button glyph nudges forward on hover. */
+.btn-glyph {
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn:hover .btn-glyph {
+  transform: translateX(4px);
+}
+
+/* Text links with a trailing arrow. */
+.arrow-link .arr {
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.arrow-link:hover .arr {
+  transform: translateX(5px);
+}
+.arrow-link:hover .arr-out {
+  transform: translate(3px, -3px);
+}
+
+/* Underline that draws in from the left. */
+.line-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition:
+    background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.25s ease;
+}
+.line-link:hover,
+.line-link[aria-current="page"] {
+  background-size: 100% 1px;
+}
+
+/* Cards that lift on hover. */
+.lift {
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s ease;
+}
+.lift:hover {
+  transform: translateY(-6px);
+}
+
+/* Contactless arcs: each wave lights up in turn. */
+@keyframes wave {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+.wave > * {
+  animation: wave 2.2s ease-in-out infinite;
+}
+.wave > *:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.wave > *:nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+/* Hero NFC cards: tilted at rest, fanned out on hover. */
+.nfc-stack .nfc-front,
+.nfc-stack .nfc-back {
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nfc-stack .nfc-front {
+  transform: rotate(-5deg);
+}
+.nfc-stack .nfc-back {
+  transform: rotate(9deg) translate(14px, 4px);
+}
+.nfc-stack:hover .nfc-front {
+  transform: rotate(-2deg) translateY(-10px);
+}
+.nfc-stack:hover .nfc-back {
+  transform: rotate(13deg) translate(28px, 6px);
+}
+
+/* Step clock in "How a tap works": new value slides up. */
+@keyframes tick {
+  from {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.tick {
+  animation: tick 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Page loader: once per browser session, then the curtain lifts. */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: #191919;
+  color: #fbf8f3;
+  animation: loader-out 0.8s cubic-bezier(0.76, 0, 0.24, 1) 1.35s forwards;
+}
+.pt-seen .loader {
+  display: none;
+}
+.loader-word {
+  display: block;
+  animation: loader-word 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+.loader-bar {
+  height: 2px;
+  background: rgba(251, 248, 243, 0.15);
+  overflow: hidden;
+}
+.loader-bar > span {
+  display: block;
+  height: 100%;
+  background: #ffe927;
+  transform-origin: left;
+  animation: loader-bar 1.15s cubic-bezier(0.65, 0, 0.35, 1) 0.15s both;
+}
+@keyframes loader-word {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes loader-bar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes loader-out {
+  to {
+    transform: translateY(-100%);
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    display: none;
+  }
+  .reveal-ready [data-reveal]:not(.is-visible) {
+    opacity: 1;
+    transform: none;
+  }
+  .lift:hover {
+    transform: none;
+  }
+  .nfc-stack:hover .nfc-front {
+    transform: rotate(-5deg);
+  }
+  .nfc-stack:hover .nfc-back {
+    transform: rotate(9deg) translate(14px, 4px);
+  }
+}

@@ -50,7 +50,7 @@ export function Waitlist() {
   return (
     <section id="waitlist" className="scroll-mt-16 pb-28 text-bone md:pb-40">
       <div className="shell">
-        <div className="grid gap-10 rounded-[18px] bg-cobalt p-7 md:p-12 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
+        <div data-reveal className="grid gap-10 rounded-[18px] bg-cobalt p-7 md:p-12 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
           <div>
             <h2 className="display text-[clamp(3rem,7vw,6rem)]">Join the waitlist</h2>
             <p className="mt-6 max-w-sm font-serif text-xl leading-snug text-bone/80">

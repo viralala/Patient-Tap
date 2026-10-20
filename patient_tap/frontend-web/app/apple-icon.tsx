@@ -3,6 +3,7 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
+// Same mark as app/icon.svg: a dot and two contactless waves on soft black.
 export default function AppleIcon() {
   return new ImageResponse(
     (
@@ -13,16 +14,13 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#1E4BD7",
+          background: "#191919",
         }}
       >
         <svg width="132" height="132" viewBox="0 0 32 32" fill="none">
-          <rect x="7" y="9" width="11" height="14" rx="2.4" fill="#fff" />
-          <line x1="9.4" y1="12.4" x2="15.6" y2="12.4" stroke="#1E4BD7" strokeWidth="1.4" strokeLinecap="round" />
-          <line x1="9.4" y1="15.4" x2="14" y2="15.4" stroke="#A9B9EE" strokeWidth="1.4" strokeLinecap="round" />
-          <line x1="9.4" y1="18.4" x2="15" y2="18.4" stroke="#A9B9EE" strokeWidth="1.4" strokeLinecap="round" />
-          <path d="M21 11.5a6 6 0 0 1 0 9" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" />
-          <path d="M23.6 9.4a9.4 9.4 0 0 1 0 13.2" stroke="#ffffffb3" strokeWidth="1.7" strokeLinecap="round" />
+          <circle cx="10.6" cy="16" r="2.5" fill="#FBF8F3" />
+          <path d="M15.6 10.6a7.6 7.6 0 0 1 0 10.8" stroke="#FBF8F3" strokeWidth="2.3" strokeLinecap="round" />
+          <path d="M20.3 6.9a12.8 12.8 0 0 1 0 18.2" stroke="#FBF8F3" strokeWidth="2.3" strokeLinecap="round" />
         </svg>
       </div>
     ),

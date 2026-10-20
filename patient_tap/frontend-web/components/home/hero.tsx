@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Parallax } from "@/components/ui/parallax";
+import { NfcCardStack } from "./nfc-card";
 
 const RECORD: [string, string, boolean?][] = [
   ["Name", "Arjun Mehta, PT-0007"],
@@ -20,28 +21,46 @@ const SPECS: [string, string][] = [
 export function Hero() {
   return (
     <section className="relative pt-16 text-bone">
-      {/* The intro drifts slower than the page, so the record card slides over it. */}
-      <Parallax speed={0.1} className="shell pb-12 pt-16 text-center md:pt-24">
-        <h1 className="display text-[clamp(3.6rem,13vw,12rem)]">
-          Medical ID
-          <br />
-          on your wrist
-        </h1>
-        <p className="mx-auto mt-8 max-w-2xl font-serif text-[clamp(1.15rem,1.6vw,1.45rem)] leading-snug text-bone/60">
-          An NFC wristband that carries your allergies, medicines, blood group and emergency
-          contacts, encrypted. A responder taps it with a phone and reads it, even with no signal.
-        </p>
-        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button href="/app">Open the web app</Button>
-          <Button href="/verify" variant="line">
-            Check a medicine
-          </Button>
+      <div className="shell grid items-center gap-14 pb-16 pt-14 md:pt-20 lg:grid-cols-[1.1fr_1fr] lg:gap-10 lg:pb-24">
+        <div>
+          <h1 data-reveal className="display text-[clamp(3.4rem,8vw,8.25rem)]">
+            Medical ID
+            <br />
+            on your
+            <br />
+            wrist
+          </h1>
+          <p
+            data-reveal
+            style={{ "--d": 1 } as React.CSSProperties}
+            className="mt-8 max-w-xl font-serif text-[clamp(1.15rem,1.6vw,1.45rem)] leading-snug text-bone/65"
+          >
+            An NFC wristband that carries your allergies, medicines, blood group and emergency
+            contacts, encrypted. A responder taps it with a phone and reads it, even with no signal.
+          </p>
+          <div
+            data-reveal
+            style={{ "--d": 2 } as React.CSSProperties}
+            className="mt-9 flex flex-col gap-3 sm:flex-row"
+          >
+            <Button href="/app">Open the web app</Button>
+            <Button href="/verify" variant="line">
+              Check a medicine
+            </Button>
+          </div>
         </div>
-      </Parallax>
+
+        {/* The card drifts up a little faster than the page. */}
+        <Parallax speed={-0.08} minWidth={1024} className="px-4 sm:px-10 lg:pl-0 lg:pr-8">
+          <div data-reveal style={{ "--d": 2 } as React.CSSProperties}>
+            <NfcCardStack />
+          </div>
+        </Parallax>
+      </div>
 
       {/* What a responder's phone shows after a tap. */}
       <div className="shell relative z-10 pb-24 md:pb-32">
-        <figure className="grid overflow-hidden rounded-[18px] bg-cobalt md:grid-cols-[1.5fr_1fr]">
+        <figure data-reveal className="grid overflow-hidden rounded-[18px] bg-cobalt md:grid-cols-[1.5fr_1fr]">
           <div className="p-6 md:p-10">
             <figcaption className="label flex items-center justify-between text-bone/75">
               <span>What a responder sees after one tap</span>

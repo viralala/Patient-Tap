@@ -129,12 +129,12 @@ export function Faq() {
       />
       <div className="shell grid gap-10 lg:grid-cols-[1fr_1.6fr]">
         <div>
-          <h2 className="display text-[clamp(3rem,8vw,7rem)]">Questions</h2>
-          <Link href="/contact" className="label mt-6 inline-block text-bone underline-offset-4 hover:underline">
-            Ask us something else <span aria-hidden>→</span>
+          <h2 data-reveal className="display text-[clamp(3rem,8vw,7rem)]">Questions</h2>
+          <Link href="/contact" className="arrow-link label mt-6 inline-block text-bone">
+            <span className="line-link">Ask us something else</span> <span aria-hidden className="arr">→</span>
           </Link>
         </div>
-        <div className="border-t border-bone/15">
+        <div data-reveal className="border-t border-bone/15">
           {FAQS.map((f, i) => {
             const isOpen = open === i;
             return (
@@ -146,10 +146,10 @@ export function Faq() {
                     aria-controls={`faq-${i}`}
                     id={`faq-q-${i}`}
                     onClick={() => setOpen(isOpen ? null : i)}
-                    className="flex w-full items-baseline justify-between gap-6 py-6 text-left font-serif text-[clamp(1.25rem,1.8vw,1.6rem)] leading-snug"
+                    className="group flex w-full items-baseline justify-between gap-6 py-6 text-left font-serif text-[clamp(1.25rem,1.8vw,1.6rem)] leading-snug"
                   >
-                    {f.q}
-                    <span aria-hidden className="w-4 shrink-0 font-mono text-lg text-bone/60">
+                    <span className="transition-transform duration-500 ease-smooth group-hover:translate-x-2">{f.q}</span>
+                    <span aria-hidden className="w-4 shrink-0 font-mono text-lg text-bone/60 transition-colors group-hover:text-lemon">
                       {isOpen ? "−" : "+"}
                     </span>
                   </button>

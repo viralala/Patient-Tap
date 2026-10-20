@@ -50,22 +50,33 @@ const PANELS: Panel[] = [
   },
 ];
 
-function PanelCard({ p }: { p: Panel }) {
+function PanelCard({ p, d }: { p: Panel; d: number }) {
   return (
-    <article className={`flex min-h-[25rem] flex-col rounded-[18px] p-7 text-bone md:p-9 ${p.bg}`}>
-      <p className="label flex justify-between text-bone/75">
-        <span>{p.n}</span>
-        <span>{p.tag}</span>
-      </p>
-      <h3 className="mt-14 font-serif text-[clamp(2.2rem,3.6vw,3rem)] leading-none">{p.title}</h3>
-      <p className="mt-5 max-w-md font-mono text-[13.5px] leading-relaxed text-bone/85">{p.body}</p>
-      <Link
-        href={p.href}
-        className="label mt-auto inline-flex w-fit items-center gap-2 pt-10 text-bone underline-offset-4 hover:underline"
+    <div data-reveal style={{ "--d": d } as React.CSSProperties}>
+      <article
+        className={`lift flex min-h-[25rem] flex-col rounded-[18px] p-7 text-bone md:p-9 ${p.bg}`}
       >
-        {p.cta} <span aria-hidden>→</span>
-      </Link>
-    </article>
+        <p className="label flex justify-between text-bone/75">
+          <span>{p.n}</span>
+          <span>{p.tag}</span>
+        </p>
+        <h3 className="mt-14 font-serif text-[clamp(2.2rem,3.6vw,3rem)] leading-none">
+          {p.title}
+        </h3>
+        <p className="mt-5 max-w-md font-mono text-[13.5px] leading-relaxed text-bone/85">
+          {p.body}
+        </p>
+        <Link
+          href={p.href}
+          className="arrow-link label mt-auto inline-flex w-fit items-center gap-2 pt-10 text-bone"
+        >
+          <span className="line-link">{p.cta}</span>
+          <span aria-hidden className="arr">
+            →
+          </span>
+        </Link>
+      </article>
+    </div>
   );
 }
 
@@ -73,17 +84,19 @@ export function WhatItDoes() {
   return (
     <section id="what" className="pb-28 text-bone md:pb-40">
       <div className="shell">
-        <h2 className="display text-[clamp(3rem,8vw,7rem)]">What it does</h2>
+        <h2 data-reveal className="display text-[clamp(3rem,8vw,7rem)]">
+          What it does
+        </h2>
         <div className="mt-12 grid gap-4 lg:grid-cols-2 lg:gap-5">
           <div className="grid gap-4 lg:gap-5">
-            <PanelCard p={PANELS[0]} />
-            <PanelCard p={PANELS[2]} />
+            <PanelCard p={PANELS[0]} d={0} />
+            <PanelCard p={PANELS[2]} d={0} />
           </div>
           {/* The right column runs slightly ahead of the page on wide screens. */}
-          <Parallax speed={0.06} className="lg:mt-28">
+          <Parallax speed={0.06} minWidth={1024} className="lg:mt-28">
             <div className="grid gap-4 lg:gap-5">
-              <PanelCard p={PANELS[1]} />
-              <PanelCard p={PANELS[3]} />
+              <PanelCard p={PANELS[1]} d={1} />
+              <PanelCard p={PANELS[3]} d={1} />
             </div>
           </Parallax>
         </div>

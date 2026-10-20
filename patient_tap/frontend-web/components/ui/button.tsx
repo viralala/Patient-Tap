@@ -38,7 +38,11 @@ export function Button({
   const inner = (
     <>
       <span>{children}</span>
-      {glyph && <span aria-hidden>{glyph}</span>}
+      {glyph && (
+        <span aria-hidden>
+          <span className="btn-glyph">{glyph}</span>
+        </span>
+      )}
     </>
   );
 

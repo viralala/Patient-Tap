@@ -25,13 +25,13 @@ export function Compare() {
     <section id="compare" className="scroll-mt-16 pb-28 text-bone md:pb-40">
       <div className="shell">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <h2 className="display text-[clamp(3rem,8vw,7rem)]">How it compares</h2>
-          <Link href="/security" className="label text-bone underline-offset-4 hover:underline md:mb-3">
-            Security overview <span aria-hidden>→</span>
+          <h2 data-reveal className="display text-[clamp(3rem,8vw,7rem)]">How it compares</h2>
+          <Link href="/security" className="arrow-link label text-bone md:mb-3">
+            <span className="line-link">Security overview</span> <span aria-hidden className="arr">→</span>
           </Link>
         </div>
 
-        <div className="mt-12 overflow-x-auto rounded-[18px] border border-bone/15">
+        <div data-reveal className="mt-12 overflow-x-auto rounded-[18px] border border-bone/15">
           <table className="w-full min-w-[640px] font-mono text-[13px]">
             <caption className="sr-only">
               How Patient-Tap compares with other ways of carrying medical information
@@ -57,7 +57,7 @@ export function Compare() {
             </thead>
             <tbody>
               {ROWS.map((r) => (
-                <tr key={r.label} className="border-b border-bone/10 last:border-0">
+                <tr key={r.label} className="border-b border-bone/10 transition-colors last:border-0 hover:bg-bone/[0.04]">
                   <th scope="row" className="p-4 text-left font-serif text-[17px] font-normal text-bone/85">
                     {r.label}
                   </th>

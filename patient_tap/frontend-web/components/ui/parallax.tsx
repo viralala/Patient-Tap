@@ -6,14 +6,17 @@ import { useEffect, useRef } from "react";
  * Moves its children at a slightly different speed from the page as the
  * wrapper crosses the viewport. `speed` is the fraction of the scroll offset
  * applied: 0.1 drifts gently, negative values move against the scroll.
- * Off when the visitor prefers reduced motion.
+ * Off when the visitor prefers reduced motion, and below `minWidth` pixels
+ * when given (for layouts that stack on small screens).
  */
 export function Parallax({
   speed = 0.1,
+  minWidth = 0,
   className,
   children,
 }: {
   speed?: number;
+  minWidth?: number;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -25,10 +28,15 @@ export function Parallax({
     const el = inner.current;
     if (!wrap || !el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const wide = window.matchMedia(`(min-width: ${minWidth}px)`);
 
     let raf = 0;
     const update = () => {
       raf = 0;
+      if (!wide.matches) {
+        el.style.transform = "";
+        return;
+      }
       // Measure the untransformed wrapper so the motion never feeds back.
       const r = wrap.getBoundingClientRect();
       if (r.bottom < -200 || r.top > window.innerHeight + 200) return;
@@ -47,7 +55,7 @@ export function Parallax({
       window.removeEventListener("scroll", queue);
       window.removeEventListener("resize", queue);
     };
-  }, [speed]);
+  }, [speed, minWidth]);
 
   return (
     <div ref={outer} className={className}>

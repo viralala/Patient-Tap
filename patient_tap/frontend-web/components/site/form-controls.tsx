@@ -112,7 +112,9 @@ export function SubmitButton({
       className={cn("btn btn-solid disabled:pointer-events-none disabled:opacity-60", className)}
     >
       <span>{sending ? "Sending" : children}</span>
-      <span aria-hidden>{sending ? "…" : "→"}</span>
+      <span aria-hidden>
+        <span className="btn-glyph">{sending ? "…" : "→"}</span>
+      </span>
     </button>
   );
 }

@@ -43,8 +43,8 @@ export function SiteNav() {
               href={l.href}
               aria-current={isActive(l.href) ? "page" : undefined}
               className={cn(
-                "text-[15px] transition-colors",
-                isActive(l.href) ? "text-bone underline underline-offset-[6px]" : "text-bone/65 hover:text-bone",
+                "line-link text-[15px]",
+                isActive(l.href) ? "text-bone" : "text-bone/65 hover:text-bone",
               )}
             >
               {l.label}
@@ -58,8 +58,8 @@ export function SiteNav() {
         </Link>
 
         <div className="flex items-center justify-end gap-5">
-          <Link href="/app" className="hidden text-[15px] text-bone transition-colors hover:text-lemon sm:inline">
-            Open the app <span aria-hidden>→</span>
+          <Link href="/app" className="arrow-link hidden text-[15px] text-bone transition-colors hover:text-lemon sm:inline">
+            Open the app <span aria-hidden className="arr">→</span>
           </Link>
           <button
             type="button"

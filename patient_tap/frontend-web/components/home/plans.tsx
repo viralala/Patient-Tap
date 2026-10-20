@@ -55,7 +55,7 @@ export function Plans() {
     <section id="plans" className="scroll-mt-16 pb-28 text-bone md:pb-40">
       <div className="shell">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <h2 className="display text-[clamp(3rem,8vw,7rem)]">Plans</h2>
+          <h2 data-reveal className="display text-[clamp(3rem,8vw,7rem)]">Plans</h2>
           <div role="group" aria-label="Billing period" className="flex w-fit rounded-btn border border-bone/20 p-1 md:mb-3">
             {(["Monthly", "Yearly"] as const).map((opt) => {
               const active = (opt === "Yearly") === yearly;
@@ -79,12 +79,14 @@ export function Plans() {
         </div>
 
         <div className="mt-12 grid gap-4 lg:grid-cols-3 lg:gap-5">
-          {PLANS.map((p) => (
+          {PLANS.map((p, i) => (
             <article
               key={p.name}
+              data-reveal
+              style={{ "--d": i } as React.CSSProperties}
               className={cn(
                 "flex flex-col rounded-[18px] p-7 md:p-8",
-                p.featured ? "bg-lemon text-canvas" : "border border-bone/15",
+                p.featured ? "bg-lemon text-canvas" : "border border-bone/15 hover:border-bone/40",
               )}
             >
               <p className="label">{p.name}</p>
@@ -115,7 +117,7 @@ export function Plans() {
           ))}
         </div>
 
-        <div className="mt-5 flex flex-col justify-between gap-6 rounded-[18px] border border-bone/15 p-7 md:flex-row md:items-center md:p-8">
+        <div data-reveal className="mt-5 flex flex-col justify-between gap-6 rounded-[18px] border border-bone/15 p-7 md:flex-row md:items-center md:p-8">
           <div className="max-w-2xl">
             <p className="font-serif text-2xl">Just need the wristbands?</p>
             <p className="mt-2 text-[15px] leading-relaxed text-bone/60">
