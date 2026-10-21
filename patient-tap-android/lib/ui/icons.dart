@@ -115,11 +115,18 @@ class AppIcon extends StatelessWidget {
   final Color color;
   final double strokeWidth;
 
-  String get _svg => '<svg xmlns="http://www.w3.org/2000/svg" '
-      'width="$size" height="$size" viewBox="0 0 24 24" fill="none" '
-      'stroke="${_hex(color)}" stroke-opacity="${_opacity(color)}" '
-      'stroke-width="$strokeWidth" stroke-linecap="round" '
-      'stroke-linejoin="round">$path</svg>';
+  /// Built SVG documents, so a rebuild reuses the same string (and therefore
+  /// flutter_svg's parsed-picture cache) instead of re-formatting it.
+  static final Map<(String, double, int, double), String> _docs =
+      <(String, double, int, double), String>{};
+
+  String get _svg => _docs.putIfAbsent(
+      (path, size, color.toARGB32(), strokeWidth),
+      () => '<svg xmlns="http://www.w3.org/2000/svg" '
+          'width="$size" height="$size" viewBox="0 0 24 24" fill="none" '
+          'stroke="${_hex(color)}" stroke-opacity="${_opacity(color)}" '
+          'stroke-width="$strokeWidth" stroke-linecap="round" '
+          'stroke-linejoin="round">$path</svg>');
 
   static String _hex(Color c) =>
       '#${((c.r * 255).round() << 16 | (c.g * 255).round() << 8 | (c.b * 255).round()).toRadixString(16).padLeft(6, '0')}';

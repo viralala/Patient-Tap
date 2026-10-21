@@ -42,8 +42,12 @@ class AppUser {
 }
 
 class AppSession {
-  const AppSession({required this.user});
+  const AppSession({required this.user, this.isLocal = false});
   final AppUser user;
+
+  /// An offline profile: no account, nothing leaves the phone, cloud features
+  /// stay off until the user signs in with Google.
+  final bool isLocal;
 }
 
 class SubscriptionInfo {
@@ -117,6 +121,15 @@ class BackendService {
     name: 'Demo User',
   );
 
+  static const AppUser _localUser = AppUser(
+    id: 'local-user',
+    email: '',
+    name: 'Offline profile',
+  );
+
+  static const AppSession localSession =
+      AppSession(user: _localUser, isLocal: true);
+
   /// True when the live backend is wired; false → demo mode.
   static bool get isLive => Db.isLive;
 
@@ -189,7 +202,15 @@ class BackendService {
     return u == null ? null : AppSession(user: _mapUser(u));
   }
 
+  /// Enter without any account. Works in demo and live mode, and survives
+  /// restarts until the user signs out or signs in with Google.
+  static Future<AppSession> startLocalSession() async {
+    await LocalStore.setLocalSession(true);
+    return localSession;
+  }
+
   static Future<void> signOut() async {
+    await LocalStore.setLocalSession(false);
     if (!Db.isLive) {
       await LocalStore.setDemoSession(null);
       _demoAuth.add(null);
@@ -200,10 +221,20 @@ class BackendService {
     } catch (_) {
       /* not signed in natively — fine */
     }
-    await Db.auth!.signOut();
+    try {
+      await Db.auth!.signOut();
+    } catch (_) {
+      /* offline or no Supabase session — the local state is already cleared */
+    }
   }
 
   static Future<AppSession?> getSession() async {
+    final AppSession? account = _accountSession();
+    if (account != null) return account;
+    return LocalStore.localSession ? localSession : null;
+  }
+
+  static AppSession? _accountSession() {
     if (!Db.isLive) {
       final String? raw = LocalStore.demoSession;
       if (raw == null) return null;
