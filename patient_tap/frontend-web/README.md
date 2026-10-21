@@ -40,6 +40,9 @@ Without `.env.local` the site still runs; only the forms and MedVerify report "o
    | `SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key — server-side only |
    | `WEB_RPC_TOKEN` | Shared secret checked by the database on every call |
    | `IP_HASH_SALT` | Random string for hashing visitor IPs |
+   | `ADMIN_PASSWORD_HASH` | Owner password hash for `/admin` (`npm run admin:hash -- "…"`) |
+   | `ADMIN_SESSION_SECRET` | Signs the admin session cookie (printed by the same command) |
+   | `ADMIN_NAME` | Optional: name on the admin ID pass |
 
 3. Add your domain under **Settings → Domains** and point DNS at Vercel.
 4. Optional: enable **Web Analytics** — it loads only after a visitor opts in via the cookie banner.
