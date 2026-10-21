@@ -47,6 +47,14 @@ const nextConfig = {
     return [
       { source: "/:path*", headers: securityHeaders },
       {
+        // The admin console is never indexed or cached.
+        source: "/admin/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store, max-age=0" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+      {
         // API responses carry user input: never cache, never sniff.
         source: "/api/:path*",
         headers: [
