@@ -48,8 +48,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) setState(() => _nfcEnabled = on);
   }
 
+  /// Offline profiles have no account to bill or back up to. Returns true
+  /// (and says why) when the action has to wait for a Google sign-in.
+  bool _needsAccount() {
+    final AppState app = context.read<AppState>();
+    if (app.hasAccount) return false;
+    app.showToast('Sign in with Google to use this', icon: Ico.lock);
+    return true;
+  }
+
+  Future<void> _signInFromOffline() async {
+    final AppState app = context.read<AppState>();
+    setState(() => _busy = 'signin');
+    try {
+      await app.signIn();
+      if (mounted && app.hasAccount) {
+        app.showToast('Signed in', icon: Ico.check, iconColor: C.accent);
+      }
+    } catch (_) {
+      app.showToast('Google sign-in failed — your offline profile is unchanged',
+          icon: Ico.x, iconColor: C.danger);
+    } finally {
+      if (mounted) setState(() => _busy = null);
+    }
+  }
+
   // ---- Billing -------------------------------------------------------------
   Future<void> _upgrade(Tier target) async {
+    if (_needsAccount()) return;
     final AppState app = context.read<AppState>();
     final AppSession? session = app.session;
     if (session == null) return;
@@ -73,6 +99,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _manage() async {
+    if (_needsAccount()) return;
     final AppState app = context.read<AppState>();
     final bool? confirmed = await _confirm(
       title: 'Cancel subscription?',
@@ -94,6 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // ---- Cloud ---------------------------------------------------------------
   Future<void> _backupNow() async {
+    if (_needsAccount()) return;
     final AppState app = context.read<AppState>();
     setState(() => _busy = 'backup');
     final bool ok = await app.backupNow();
@@ -107,6 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _restore() async {
+    if (_needsAccount()) return;
     final AppState app = context.read<AppState>();
     final bool? confirmed = await _confirm(
       title: 'Restore cloud backup?',
@@ -128,6 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _testAlert() async {
+    if (_needsAccount()) return;
     final AppState app = context.read<AppState>();
     setState(() => _busy = 'alert');
     final AlertOutcome res = await BackendService.notifyEmergencyContacts(
@@ -147,6 +177,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // ---- Share ---------------------------------------------------------------
   Future<void> _makeShare() async {
+    if (_needsAccount()) return;
     final AppState app = context.read<AppState>();
     setState(() => _busy = 'share');
     final Map<String, dynamic> card =
@@ -258,6 +289,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final AppState app = context.watch<AppState>();
     final Tier tier = app.tier;
     final AppUser? user = app.session?.user;
+    final bool offline = app.session?.isLocal ?? false;
+    final String accountSub = offline
+        ? 'Stored only on this phone · no account'
+        : '${user?.email ?? ''}${app.isLive ? '' : ' · demo session'}';
 
     return w.Screen(
       children: <Widget>[
@@ -275,19 +310,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: <Widget>[
               w.RowTile(
                 title: user?.name ?? 'Signed in',
-                subtitle:
-                    '${user?.email ?? ''}${app.isLive ? '' : ' · demo session'}',
+                subtitle: accountSub,
                 divider: false,
                 trailing: null,
                 icon: null,
-                subtitleWidget: Text(
-                  '${user?.email ?? ''}${app.isLive ? '' : ' · demo session'}',
-                  style: T.rowSub,
-                ),
+                subtitleWidget: Text(accountSub, style: T.rowSub),
               ),
               const SizedBox(height: 6),
+              if (offline) ...<Widget>[
+                w.Btn(
+                  label: 'Sign in with Google for backup & alerts',
+                  icon: Ico.wifi,
+                  small: true,
+                  busy: _busy == 'signin',
+                  onTap: _signInFromOffline,
+                ),
+                const SizedBox(height: 8),
+              ],
               w.Btn(
-                label: 'Sign out',
+                label: offline ? 'Leave offline mode' : 'Sign out',
                 kind: w.BtnKind.secondary,
                 icon: Ico.lock,
                 small: true,
@@ -373,7 +414,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     'End-to-end encrypted — the server stores ciphertext only',
                 trailing: f.AppSwitch(
                   value: app.cloudBackup,
-                  onChanged: app.setCloudBackup,
+                  onChanged: (bool v) {
+                    if (!_needsAccount()) app.setCloudBackup(v);
+                  },
                 ),
               ),
               w.RowTile(
@@ -384,7 +427,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 divider: false,
                 trailing: f.AppSwitch(
                   value: app.alertsEnabled,
-                  onChanged: app.setAlertsEnabled,
+                  onChanged: (bool v) {
+                    if (!_needsAccount()) app.setAlertsEnabled(v);
+                  },
                 ),
               ),
               const SizedBox(height: 12),

@@ -32,6 +32,7 @@ class _WriteTagScreenState extends State<WriteTagScreen> {
   _Phase _phase = _Phase.select;
   String _errMsg = '';
   int _written = 0;
+  NfcStage? _stage;
 
   @override
   void dispose() {
@@ -60,11 +61,17 @@ class _WriteTagScreenState extends State<WriteTagScreen> {
 
   Future<void> _doWrite() async {
     final AppState app = context.read<AppState>();
-    setState(() => _phase = _Phase.tapping);
+    setState(() {
+      _phase = _Phase.tapping;
+      _stage = null;
+    });
 
     try {
       final int bytes = await NfcService.writeToTag(
         serializeForWrite(app.profile, _sel),
+        onProgress: (NfcStage s) {
+          if (mounted) setState(() => _stage = s);
+        },
       );
       if (!mounted) return;
       setState(() {
@@ -73,7 +80,7 @@ class _WriteTagScreenState extends State<WriteTagScreen> {
       });
       app.showToast('Tag written', icon: Ico.check, iconColor: C.accent);
     } on TagError catch (e) {
-      if (!mounted) return;
+      if (!mounted || e.code == TagErrorCode.cancelled) return;
       setState(() {
         _errMsg = e.message;
         _phase = _Phase.error;
@@ -99,6 +106,8 @@ class _WriteTagScreenState extends State<WriteTagScreen> {
         return TapOverlay(
           title: 'Hold near the tag',
           sub: 'Keep your device steady over the wristband…',
+          stage: _stage,
+          activeTitle: 'Writing — keep holding',
           onCancel: () async {
             await NfcService.cancel();
             if (mounted) setState(() => _phase = _Phase.select);
@@ -307,11 +316,19 @@ class TapOverlay extends StatelessWidget {
     super.key,
     required this.title,
     required this.sub,
+    this.stage,
+    this.activeTitle = 'Card detected — keep holding',
     this.onCancel,
   });
 
   final String title;
   final String sub;
+
+  /// Live session progress; null while still waiting for a card.
+  final NfcStage? stage;
+
+  /// Headline once the card is in the field.
+  final String activeTitle;
   final VoidCallback? onCancel;
 
   @override
@@ -322,14 +339,31 @@ class TapOverlay extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const Spacer(),
-              const f.NfcRipple(),
+              f.NfcRipple(detected: stage == NfcStage.detected),
               const SizedBox(height: 30),
-              Text(title, style: T.display(size: 24)),
+              Text(
+                switch (stage) {
+                  NfcStage.detected => activeTitle,
+                  NfcStage.lost => 'Card moved — tap again',
+                  null => title,
+                },
+                textAlign: TextAlign.center,
+                style: T.display(size: 24).copyWith(
+                      color: stage == NfcStage.lost ? C.caution : null,
+                    ),
+              ),
               const SizedBox(height: 8),
               ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 240),
+                constraints: const BoxConstraints(maxWidth: 260),
                 child: Text(
-                  sub,
+                  switch (stage) {
+                    NfcStage.detected =>
+                      "Don't move the phone until it buzzes twice.",
+                    NfcStage.lost =>
+                      'Nothing was lost. Hold the card flat against the back '
+                          'of the phone, near the camera.',
+                    null => sub,
+                  },
                   textAlign: TextAlign.center,
                   style: T.caption(),
                 ),

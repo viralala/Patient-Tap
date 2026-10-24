@@ -534,10 +534,18 @@ class _RingPainter extends CustomPainter {
 // ------------------------------------------------------- NFC animations -----
 
 /// `.nfc-ripple` — the concentric pulse shown while waiting for a tag.
+/// With [detected] the rings stop and the disc fills solid: the card is in
+/// the field and being read.
 class NfcRipple extends StatefulWidget {
-  const NfcRipple({super.key, this.size = 120, this.iconSize = 56});
+  const NfcRipple({
+    super.key,
+    this.size = 120,
+    this.iconSize = 56,
+    this.detected = false,
+  });
   final double size;
   final double iconSize;
+  final bool detected;
 
   @override
   State<NfcRipple> createState() => _NfcRippleState();
@@ -548,7 +556,20 @@ class _NfcRippleState extends State<NfcRipple>
   late final AnimationController _c = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1800),
-  )..repeat();
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.detected) _c.repeat();
+  }
+
+  @override
+  void didUpdateWidget(NfcRipple old) {
+    super.didUpdateWidget(old);
+    if (widget.detected == old.detected) return;
+    widget.detected ? _c.stop() : _c.repeat();
+  }
 
   @override
   void dispose() {
@@ -557,45 +578,60 @@ class _NfcRippleState extends State<NfcRipple>
   }
 
   @override
-  Widget build(BuildContext context) => SizedBox(
+  Widget build(BuildContext context) {
+    final bool on = widget.detected;
+    // Built once per state change, not per animation frame.
+    final Widget disc = AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      width: on ? widget.size * 1.12 : widget.size,
+      height: on ? widget.size * 1.12 : widget.size,
+      decoration: BoxDecoration(
+        color: on ? C.accent : C.accentSoft,
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: AppIcon(Ico.nfc,
+            size: widget.iconSize, color: on ? C.accentInk : C.accent),
+      ),
+    );
+
+    // Its own layer: the 60fps rings never repaint the rest of the screen.
+    return RepaintBoundary(
+      child: SizedBox(
         width: widget.size * 1.6,
         height: widget.size * 1.6,
-        child: AnimatedBuilder(
-          animation: _c,
-          builder: (BuildContext context, Widget? child) => Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              _ripple(_c.value),
-              _ripple((_c.value + 0.5) % 1.0),
-              Container(
-                width: widget.size,
-                height: widget.size,
-                decoration: const BoxDecoration(
-                  color: C.accentSoft,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: AppIcon(Ico.nfc,
-                      size: widget.iconSize, color: C.accent),
+        child: on
+            ? Center(child: disc)
+            : AnimatedBuilder(
+                animation: _c,
+                child: disc,
+                builder: (BuildContext context, Widget? child) => Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    _ripple(_c.value),
+                    _ripple((_c.value + 0.5) % 1.0),
+                    child!,
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      );
+      ),
+    );
+  }
 
   Widget _ripple(double t) {
-    // 0.6 → 1.6 scale, opacity 0.9 → 0 (matches @keyframes ripple)
+    // 0.6 → 1.6 scale, opacity 0.9 → 0 (matches @keyframes ripple). Alpha is
+    // baked into the border colour rather than an Opacity layer.
     final double scale = 0.6 + t * 1.0;
     final double opacity = (0.9 * (1 - t)).clamp(0.0, 1.0);
-    return Opacity(
-      opacity: opacity,
-      child: Container(
-        width: widget.size * scale,
-        height: widget.size * scale,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0x733EC9A7), width: 2),
+    return Container(
+      width: widget.size * scale,
+      height: widget.size * scale,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: const Color(0xFF3EC9A7).withValues(alpha: 0.45 * opacity),
+          width: 2,
         ),
       ),
     );

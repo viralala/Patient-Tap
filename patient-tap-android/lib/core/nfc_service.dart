@@ -26,6 +26,7 @@ import 'package:nfc_manager_ndef/nfc_manager_ndef.dart';
 import '../config/app_config.dart';
 import 'crypto_service.dart';
 import 'local_store.dart';
+import 'scan_feedback.dart';
 
 enum TagErrorCode {
   outOfRange,
@@ -75,13 +76,26 @@ const Map<TagErrorCode, String> tagErrorCopy = <TagErrorCode, String>{
   TagErrorCode.timeout: 'No tag detected. Try again and hold the card steady.',
 };
 
+/// What the card is doing mid-session, for screens that show it live.
+enum NfcStage {
+  /// A card is in the field and being read/written — keep holding.
+  detected,
+
+  /// The card left before we finished. The session stays open; tap again.
+  lost,
+}
+
+typedef NfcProgress = void Function(NfcStage stage);
+
 class NfcService {
   NfcService._();
 
-  static bool _sessionOpen = false;
+  /// The session currently waiting for a card, if any. Completing it with
+  /// [TagErrorCode.cancelled] is how [cancel] unblocks a waiting caller.
+  static Completer<Object?>? _active;
 
   /// Whether a scan/write session is currently waiting for a card.
-  static bool get isSessionOpen => _sessionOpen;
+  static bool get isSessionOpen => _active != null;
 
   static Future<NfcAvailability> availability() async {
     try {
@@ -96,10 +110,19 @@ class NfcService {
 
   // -------------------------------------------------------------------------
   // Session plumbing: bridge the callback-based API to a Future.
+  //
+  // Two things make a scan feel solid rather than fiddly:
+  //  • A card that slips away mid-read is not a failure. Any error that isn't
+  //    a [TagError] (TagLostException, IOException…) keeps the session open
+  //    and reports [NfcStage.lost], so the user just taps again.
+  //  • Every stage buzzes and beeps (core/scan_feedback), so you know the card
+  //    registered without watching the screen.
   // -------------------------------------------------------------------------
   static Future<T> _withTag<T>(
     Future<T> Function(NfcTag tag) action, {
     Duration timeout = const Duration(seconds: 60),
+    NfcProgress? onProgress,
+    TagErrorCode lostCode = TagErrorCode.outOfRange,
   }) async {
     final NfcAvailability avail = await availability();
     if (avail == NfcAvailability.unsupported) {
@@ -109,11 +132,19 @@ class NfcService {
       throw const TagError(TagErrorCode.nfcDisabled);
     }
 
-    final Completer<T> completer = Completer<T>();
-    _sessionOpen = true;
+    // One session at a time — a new scan supersedes a forgotten one.
+    await cancel();
+
+    final Completer<Object?> completer = Completer<Object?>();
+    _active = completer;
+    bool working = false;
+    Object? lastLoss;
 
     Future<void> finish() async {
-      _sessionOpen = false;
+      // Only tear down the platform session if it is still ours; a cancelled
+      // session must not stop the one that replaced it.
+      if (!identical(_active, completer)) return;
+      _active = null;
       try {
         await NfcManager.instance.stopSession();
       } catch (_) {
@@ -127,14 +158,27 @@ class NfcService {
           NfcPollingOption.iso14443, // NTAG215 is ISO 14443-A
           NfcPollingOption.iso15693,
         },
+        // Our own beep replaces the system click, so each stage sounds distinct.
+        noPlatformSoundsAndroid: true,
         onDiscovered: (NfcTag tag) async {
-          if (completer.isCompleted) return;
+          if (completer.isCompleted || working) return;
+          working = true;
+          onProgress?.call(NfcStage.detected);
+          unawaited(ScanFeedback.detected());
           try {
-            completer.complete(await action(tag));
+            final T result = await action(tag);
+            if (!completer.isCompleted) completer.complete(result);
+          } on TagError catch (e) {
+            // Card-level problem another tap won't fix (locked, not NDEF…).
+            if (!completer.isCompleted) completer.completeError(e);
           } catch (e) {
-            completer.completeError(
-              e is TagError ? e : TagError(TagErrorCode.writeFailed, '$e'),
-            );
+            lastLoss = e;
+            if (!completer.isCompleted) {
+              onProgress?.call(NfcStage.lost);
+              unawaited(ScanFeedback.failure());
+            }
+          } finally {
+            working = false;
           }
         },
       );
@@ -144,19 +188,32 @@ class NfcService {
     }
 
     try {
-      return await completer.future.timeout(
+      final Object? result = await completer.future.timeout(
         timeout,
-        onTimeout: () => throw const TagError(TagErrorCode.timeout),
+        onTimeout: () => throw TagError(
+          lastLoss != null ? lostCode : TagErrorCode.timeout,
+        ),
       );
+      unawaited(ScanFeedback.success());
+      return result as T;
+    } on TagError catch (e) {
+      if (e.code != TagErrorCode.cancelled) unawaited(ScanFeedback.failure());
+      rethrow;
     } finally {
       await finish();
     }
   }
 
-  /// Abort a session the user backed out of.
+  /// Abort a session the user backed out of. The waiting caller gets a
+  /// [TagErrorCode.cancelled] error straight away instead of hanging until
+  /// the timeout.
   static Future<void> cancel() async {
-    if (!_sessionOpen) return;
-    _sessionOpen = false;
+    final Completer<Object?>? c = _active;
+    if (c == null) return;
+    _active = null;
+    if (!c.isCompleted) {
+      c.completeError(const TagError(TagErrorCode.cancelled));
+    }
     try {
       await NfcManager.instance.stopSession();
     } catch (_) {
@@ -204,7 +261,13 @@ class NfcService {
 
   /// Encrypt [plaintext] and write it to a physical tag. Resolves once the
   /// card has been written; throws [TagError] with a user-facing message.
-  static Future<int> writeToTag(String plaintext) async {
+  ///
+  /// The write is read back and compared before it counts as done, so a card
+  /// pulled away half-written is caught and simply re-tapped.
+  static Future<int> writeToTag(
+    String plaintext, {
+    NfcProgress? onProgress,
+  }) async {
     final String b64 = await CryptoService.encryptBytes(plaintext);
 
     // Budget against the encrypted binary size, not the base64 expansion.
@@ -215,7 +278,8 @@ class NfcService {
 
     final NdefMessage message = _buildMessage(b64);
 
-    await _withTag<void>((NfcTag tag) async {
+    await _withTag<void>(onProgress: onProgress,
+        lostCode: TagErrorCode.writeFailed, (NfcTag tag) async {
       final Ndef? ndef = Ndef.from(tag);
 
       if (ndef == null) {
@@ -237,13 +301,16 @@ class NfcService {
       for (int attempt = 1; attempt <= 3; attempt++) {
         try {
           await ndef.write(message: message);
-          return;
+          final NdefMessage? back = await ndef.read();
+          if (_extractPayload(back) == b64) return;
+          lastErr = 'verification mismatch';
         } catch (e) {
           lastErr = e;
-          await Future<void>.delayed(Duration(milliseconds: 220 * attempt));
         }
+        await Future<void>.delayed(Duration(milliseconds: 120 * attempt));
       }
-      throw TagError(TagErrorCode.writeFailed, 'Write failed: $lastErr');
+      // Not a TagError: the session stays open and the user can tap again.
+      throw StateError('Write failed: $lastErr');
     });
 
     // Mirror locally so the app can show "tag synced" and Responder mode has a
@@ -258,28 +325,45 @@ class NfcService {
 
   /// Wait for a card, read its NDEF message and decrypt the payload.
   /// Returns the plaintext JSON. Throws [TagError] on empty / tampered tag.
-  static Future<String> readFromTag() async {
-    final String b64 = await _withTag<String>((NfcTag tag) async {
+  ///
+  /// Decryption happens inside the session so the success buzz only fires
+  /// once the data is actually readable.
+  static Future<String> readFromTag({NfcProgress? onProgress}) async {
+    late String b64;
+    final String plain =
+        await _withTag<String>(onProgress: onProgress, (NfcTag tag) async {
       final Ndef? ndef = Ndef.from(tag);
       if (ndef == null) throw const TagError(TagErrorCode.notNdef);
 
-      NdefMessage? msg;
-      try {
-        msg = await ndef.read();
-      } catch (_) {
-        msg = ndef.cachedMessage;
+      // Android already read the NDEF message when the card was discovered;
+      // using that copy means no further radio traffic, so a quick tap that
+      // is already moving away still succeeds.
+      String? payload = _extractPayload(ndef.cachedMessage);
+      if (payload == null || payload.isEmpty) {
+        // Fresh read, retried — throws (→ "tap again") if the card is gone.
+        Object? lastErr;
+        for (int attempt = 1; attempt <= 3; attempt++) {
+          try {
+            payload = _extractPayload(await ndef.read());
+            lastErr = null;
+            break;
+          } catch (e) {
+            lastErr = e;
+            await Future<void>.delayed(Duration(milliseconds: 80 * attempt));
+          }
+        }
+        if (lastErr != null) throw StateError('Read failed: $lastErr');
       }
-      msg ??= ndef.cachedMessage;
 
-      final String? payload = _extractPayload(msg);
       if (payload == null || payload.isEmpty) {
         throw const TagError(TagErrorCode.notSetUp);
       }
-      return payload;
+      b64 = payload;
+      return _decryptOrThrow(payload);
     });
 
     await LocalStore.writeTagRaw(b64);
-    return _decryptOrThrow(b64);
+    return plain;
   }
 
   /// Decrypt the last payload this device saw, with no card present.

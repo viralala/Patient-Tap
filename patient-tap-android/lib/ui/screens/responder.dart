@@ -56,6 +56,7 @@ class _ResponderScreenState extends State<ResponderScreen> {
   String _errMsg = '';
   AlertResult? _alert;
   int _readMs = 0;
+  NfcStage? _stage;
 
   @override
   void dispose() {
@@ -70,11 +71,17 @@ class _ResponderScreenState extends State<ResponderScreen> {
       _phase = _Phase.scanning;
       _alert = null;
       _training = false;
+      _stage = null;
     });
 
     final Stopwatch sw = Stopwatch()..start();
     try {
-      final String json = await NfcService.readFromTag();
+      final String json = await NfcService.readFromTag(
+        onProgress: (NfcStage s) {
+          if (s == NfcStage.detected) sw.reset(); // time the read, not the wait
+          if (mounted) setState(() => _stage = s);
+        },
+      );
       final PatientProfile p = deserializeFromTag(json);
       sw.stop();
       if (!mounted) return;
@@ -85,7 +92,7 @@ class _ResponderScreenState extends State<ResponderScreen> {
       });
       await _afterLoad(app, p);
     } on TagError catch (e) {
-      if (!mounted) return;
+      if (!mounted || e.code == TagErrorCode.cancelled) return;
       setState(() {
         _errMsg = e.message;
         _phase = _Phase.error;
@@ -188,9 +195,17 @@ class _ResponderScreenState extends State<ResponderScreen> {
       return;
     }
 
-    setState(() => _phase = _Phase.scanning);
+    setState(() {
+      _phase = _Phase.scanning;
+      _stage = null;
+    });
     try {
-      await NfcService.writeToTag(serializeForWrite(next, WriteSelection.all()));
+      await NfcService.writeToTag(
+        serializeForWrite(next, WriteSelection.all()),
+        onProgress: (NfcStage s) {
+          if (mounted) setState(() => _stage = s);
+        },
+      );
       if (!mounted) return;
       setState(() => _phase = _Phase.loaded);
       app.showToast('Log written back to tag',
@@ -222,6 +237,7 @@ class _ResponderScreenState extends State<ResponderScreen> {
         return TapOverlay(
           title: 'Scanning tag',
           sub: "Reading and decrypting the patient's profile…",
+          stage: _stage,
           onCancel: () async {
             await NfcService.cancel();
             if (mounted) {
