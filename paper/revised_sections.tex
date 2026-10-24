@@ -1,0 +1,360 @@
+% ============================================================================
+% Patient-Tap paper -- revised sections (drop-in for IEEEtran conference).
+%
+% Every number below was measured from the patient-tap-android code on
+% 2026-10-20 (Flutter 3.44.5, Dart 3.12.2). Re-run `flutter test` before
+% submission if the code changes.
+%
+% Required packages in the preamble (most IEEE templates already load them):
+%   \usepackage{amsmath}
+%   \usepackage{booktabs}   % optional; swap \toprule etc. for \hline if absent
+%   \usepackage{url}
+%
+% Lines marked TODO need input from the team.
+% ============================================================================
+
+
+% ----------------------------------------------------------------------------
+% AUTHOR BLOCK  (replace the existing \author{...})
+% ----------------------------------------------------------------------------
+\author{
+\IEEEauthorblockN{Viral Dhoka}
+\IEEEauthorblockA{\textit{Dept. of Computer Engineering}\\
+\textit{Vishwakarma Institute of Technology}\\
+Pune, India\\
+viral.1251070777@vit.edu}
+\and
+\IEEEauthorblockN{Tanaya Thorat}
+\IEEEauthorblockA{\textit{Dept. of Computer Engineering}\\
+\textit{Vishwakarma Institute of Technology}\\
+Pune, India\\
+tanaya.1251070438@vit.edu}
+\and
+\IEEEauthorblockN{Samarth Dhage}
+\IEEEauthorblockA{\textit{Dept. of Computer Engineering}\\
+\textit{Vishwakarma Institute of Technology}\\
+Pune, India\\
+samarth.1251070384@vit.edu}
+\and
+\IEEEauthorblockN{Vyanktesh Yeole}
+\IEEEauthorblockA{\textit{Dept. of Computer Engineering}\\
+\textit{Vishwakarma Institute of Technology}\\
+Pune, India\\
+vyanktesh.1251070836@vit.edu}
+\and
+\IEEEauthorblockN{Samruddhi Wankhede}
+\IEEEauthorblockA{\textit{Dept. of Computer Engineering}\\
+\textit{Vishwakarma Institute of Technology}\\
+Pune, India\\
+samruddhi.1251070439@vit.edu}
+\and
+\IEEEauthorblockN{Vedant Patil}
+\IEEEauthorblockA{\textit{Dept. of Information Technology}\\
+\textit{Vishwakarma Institute of Technology}\\
+Pune, India\\
+vedant.1251130247@vit.edu}
+% TODO: add the faculty guide as a seventh author or in the Acknowledgment,
+% whichever your department expects.
+}
+
+
+% ----------------------------------------------------------------------------
+% REPLACES Section IV-C "Payload Design"
+% ----------------------------------------------------------------------------
+\subsection{Payload Format}
+\label{sec:payload}
+
+The tag carries a single NDEF record of type name format \emph{media} with
+the MIME type \texttt{application/x-patient-tap} [6]. Its payload is built in
+three layers.
+
+\emph{1) Compact projection.} The application does not serialise the full
+profile. It projects the fields the user selected onto a JSON object with
+one- and two-letter keys (Table~\ref{tab:fields}). Medications, contacts and
+treatment-log entries are stored as positional arrays rather than objects, which
+removes repeated key names. Every payload carries a schema version
+\texttt{v} (currently 2) so that later formats can be told apart.
+
+\begin{table}[htbp]
+\caption{Fields in the Compact Tag Projection}
+\label{tab:fields}
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Key & Content & Included when \\
+\midrule
+\texttt{v}   & Schema version (2)                  & Always \\
+\texttt{id}, \texttt{n}, \texttt{bt} & Patient ID, name, blood type & Basic info \\
+\texttt{a}   & List of allergies                   & Allergies \\
+\texttt{m}   & [name, dose, frequency] per drug    & Medications \\
+\texttt{dnr} & Do-not-resuscitate flag (0/1)       & DNR \\
+\texttt{c}   & [name, phone] per contact           & Contacts \\
+\texttt{l}   & [time, responder ID, action]        & Treatment log \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\emph{2) Authenticated encryption.} The UTF-8 JSON string $P$ is encrypted
+with AES-256-GCM [1] under key $K$ and a fresh 96-bit nonce $N$ drawn from the
+platform's cryptographically secure random number generator. No associated
+data is used. The result is packed as
+\begin{equation}
+B = N_{[12]} \,\|\, C_{[|P|]} \,\|\, T_{[16]},
+\label{eq:wire}
+\end{equation}
+so the binary size is $|B| = |P| + 28$ bytes. This layout is byte-for-byte
+identical to the output of the browser Web Crypto API, so tags written by the
+project's web prototype and its Android application are interchangeable.
+
+\emph{3) Text encoding.} $B$ is Base64-encoded and stored as the NDEF record
+payload, which expands it by a factor of $4/3$.
+
+On read, the application first looks for a record with the Patient-Tap MIME
+type. This lets it ignore other records that a card may already carry, such
+as a manufacturer URL. It then Base64-decodes the payload, rejects anything
+shorter than 28 bytes, and attempts GCM decryption. Any authentication-tag
+mismatch is reported to the responder as a tampered or unreadable card. No
+plaintext is shown unless verification succeeds.
+
+\emph{Capacity.} The target tag is the NXP NTAG215, which offers 504 bytes of
+user memory [7]. Its capability container declares a 496-byte NDEF data area,
+and the NDEF TLV wrapper takes 4 of those, so the largest NDEF message it
+holds is 492\,B. For the built-in demonstration profile with every category
+selected, $|P| = 257$\,B, $|B| = 285$\,B, the Base64 payload is 380\,B, and
+the complete NDEF record is 411\,B, which fits on the tag. With only basic
+information and allergies selected, $|B| = 113$\,B. As the user selects
+categories, a live meter shows the size of the NDEF message that would be
+written, computed as
+\begin{equation}
+S(|B|) = h + |\tau| + 4\left\lceil |B|/3 \right\rceil,
+\label{eq:ndef}
+\end{equation}
+where $|\tau| = 25$\,B is the MIME type and the record header $h$ is 3\,B
+for a payload of up to 255\,B and 6\,B above that. A unit test checks
+Eq.~\eqref{eq:ndef} against the record the NFC library actually builds. The
+application refuses to write a message larger than 492\,B, and again refuses
+if the message exceeds the size the physical tag reports. Writes are retried
+up to three times, because a hand moving mid-write is the most common cause
+of failure.
+
+Because of the Base64 expansion and record header, the largest encrypted
+payload that fits an NTAG215 is $|B| = 345$\,B, that is 317\,B of JSON,
+rather than the full 504\,B. Writing $B$ directly as a binary record would
+recover about 115\,B, and we plan to do this in the next schema version.
+An earlier build compared $|B|$ itself against 504\,B, so payloads between
+346 and 504\,B passed the meter and then failed at the tag. Measuring the
+encoded record removed this mismatch.
+
+
+% ----------------------------------------------------------------------------
+% REPLACES Section V-A "Authenticated Encryption" (key paragraph onwards)
+% ----------------------------------------------------------------------------
+\subsection{Key Management in the Prototype}
+\label{sec:key}
+
+AES-GCM protects a payload only as well as its key is protected. We
+therefore describe the prototype's key handling exactly as it is implemented.
+
+\emph{Tag key.} To let any installation of the application act as a
+responder without an account or network connection, the prototype uses one
+\emph{shared responder key} for all tags:
+\begin{equation}
+K = \mathrm{SHA\text{-}256}(s),
+\label{eq:key}
+\end{equation}
+where $s$ is a fixed string compiled into the application. Every copy of the
+app derives the same $K$. This makes the offline, no-sign-in responder
+workflow possible. It also means that the encryption provides
+\textbf{integrity, not confidentiality, against an attacker who has the
+application}: anyone who extracts $s$ from the APK can decrypt any tag and
+can also create tags that verify correctly. In this prototype, the
+confidentiality guarantee holds only against readers who do not have the
+application, such as a generic NFC reader app.
+
+We consider this acceptable for a feasibility prototype and not acceptable
+for deployment. A deployable design needs (i) keys stored in hardware-backed
+storage such as the Android Keystore [8], (ii) per-patient or per-card keys
+rather than one global key, and (iii) a way for authorised responders to
+obtain those keys. Section~\ref{sec:future} outlines options, each of which
+trades off against the offline goal.
+
+\emph{Share-link keys.} Emergency share links, which are sent through the
+optional cloud service, do not use $K$. Each link is encrypted under a fresh
+random 256-bit key that travels only in the URL fragment and so never reaches
+the server. A unit test confirms that one link's key cannot decrypt another
+link (Table~\ref{tab:tests}).
+
+\emph{Nonces.} Nonces are 96 bits drawn independently at random for every
+write. Because all tags share one key, the risk of nonce reuse grows with the
+total number of writes across all users. Random 96-bit nonces stay within
+NIST's recommended bound of $2^{32}$ invocations per key [1], but a per-card
+key would remove this shared exposure entirely. Nonce reuse under GCM leaks
+the authentication subkey and enables forgeries [9].
+
+\emph{Local PIN.} The application lock stores $\mathrm{SHA\text{-}256}(\mathit{salt}
+\,\|\, \texttt{:} \,\|\, \mathit{PIN})$ with a random 128-bit salt and never
+stores the PIN itself. The salt defeats precomputed tables, but a single fast
+hash over a 4--6 digit PIN can still be brute-forced offline in well under a
+second. Production builds should use a memory-hard function such as Argon2id
+[10], [11] together with attempt limits.
+
+
+% ----------------------------------------------------------------------------
+% REPLACES Section VII "Evaluation Methodology"
+% ----------------------------------------------------------------------------
+\section{Evaluation}
+\label{sec:eval}
+
+\subsection{Automated Tests}
+
+The security- and safety-critical logic is covered by 20 unit tests in the
+project repository [2]. All 20 pass on Flutter~3.44.5 / Dart~3.12.2
+(Table~\ref{tab:tests}). The tests exercise the production code directly;
+the cryptographic primitives come from the \texttt{cryptography} Dart
+package.
+
+\begin{table}[htbp]
+\caption{Unit-Test Results (20/20 Passing)}
+\label{tab:tests}
+\centering
+\begin{tabular}{@{}p{0.27\columnwidth}p{0.63\columnwidth}@{}}
+\toprule
+Area (tests) & Property verified \\
+\midrule
+Encryption (7) &
+Round-trip correctness; output matches Eq.~\eqref{eq:wire} and the size
+estimator; a fresh nonce on every call (identical plaintexts give different
+ciphertexts); a flipped bit in the tag is rejected; a truncated payload is
+rejected; share-link keys are mutually exclusive; the PIN hash is salted,
+deterministic and does not contain the PIN. \\
+\addlinespace
+Tag payload (6) &
+All fields survive projection and parsing; a partial selection writes only
+the chosen categories; the demo profile fits the NTAG215 budget; the size
+estimate of Eq.~\eqref{eq:ndef} equals the NDEF library's record length on
+both sides of the short-record boundary; a payload whose binary fits but
+whose encoded record does not is rejected; malformed JSON yields an empty
+profile instead of a crash. \\
+\addlinespace
+Conflict checker (7) &
+Direct allergy match is flagged as danger; drug-class cross-reactivity
+(e.g.\ amoxicillin with a penicillin allergy) is flagged as danger; a repeat
+dose within 4\,h triggers a warning, one older than 4\,h does not; an
+interaction with a current medication triggers a warning; an unrelated drug
+and an empty input pass. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Payload Size}
+
+Table~\ref{tab:sizes} gives the measured sizes for the demonstration profile
+(one patient with two allergies, two medications with dose and frequency, and
+two emergency contacts). Encryption adds a constant 28\,B; Base64 and the
+NDEF header add the rest.
+
+\begin{table}[htbp]
+\caption{Measured Payload Sizes (Demo Profile)}
+\label{tab:sizes}
+\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Stage & All fields & Basic + allergies \\
+\midrule
+JSON plaintext $|P|$          & 257\,B & 85\,B  \\
+Encrypted binary $|B|$        & 285\,B & 113\,B \\
+Base64 payload                & 380\,B & 152\,B \\
+NDEF record                   & 411\,B & 180\,B \\
+NTAG215 NDEF capacity         & \multicolumn{2}{c}{492\,B} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Device Testing}
+
+% TODO: fill in from real runs. Suggested minimum so the paper has
+% measurements, not just a plan:
+%   - Devices: model, Android version (aim for >= 3 phones).
+%   - Tags: NTAG213 / 215 / 216, card and wristband form factors.
+%   - For each device x tag: 20 write+read cycles in airplane mode; report
+%     success rate and median / 95th-percentile time from tap to display.
+%   - Tamper check: edit bytes on a written tag with a generic NFC app and
+%     confirm the responder screen rejects it.
+The end-to-end write, scan and display path was exercised in airplane mode on
+\textit{[TODO: devices]} with \textit{[TODO: tag types]}. Over
+\textit{[TODO: N]} cycles we observed a success rate of
+\textit{[TODO]}\,\% and a median tap-to-display time of \textit{[TODO]}\,ms.
+
+
+% ----------------------------------------------------------------------------
+% ADD to Section IX "Future Scope". Put \label{sec:future} directly after
+% that section's \section{...} line so the reference in Sec. V resolves.
+% ----------------------------------------------------------------------------
+Replacing the shared responder key is the main open problem. Options under
+consideration include: per-card keys printed as a QR code on the card itself,
+so that the physical card is the credential; keys issued to verified
+responders through a hospital or EMS identity service and cached for offline
+use; and a split design in which a small unencrypted ``critical'' subset (for
+example blood type and life-threatening allergies) is readable by anyone,
+while the full record requires an authorised key.
+
+
+% ----------------------------------------------------------------------------
+% REFERENCES  (replaces the whole bibliography)
+% ----------------------------------------------------------------------------
+\begin{thebibliography}{00}
+
+\bibitem{b1} M. Dworkin, ``Recommendation for block cipher modes of
+operation: Galois/Counter Mode (GCM) and GMAC,'' NIST Special Publication
+800-38D, National Institute of Standards and Technology, 2007,
+doi: 10.6028/NIST.SP.800-38D.
+
+\bibitem{b2} V. Dhoka, T. Thorat, S. Dhage, V. Yeole, S. Wankhede, and
+V. Patil, ``Patient-Tap: Source code and test suite,'' GitHub repository.
+[Online]. Available: \url{https://github.com/viralala/Patient-Tap}.
+Accessed: Oct. 20, 2026.
+
+\bibitem{b3} Google, ``Flutter documentation.'' [Online]. Available:
+\url{https://docs.flutter.dev/}. Accessed: Oct. 20, 2026.
+
+\bibitem{b4} Supabase, ``Row Level Security.'' [Online]. Available:
+\url{https://supabase.com/docs/guides/database/postgres/row-level-security}.
+Accessed: Oct. 20, 2026.
+
+\bibitem{b5} Google, ``ML Kit Text Recognition v2.'' [Online]. Available:
+\url{https://developers.google.com/ml-kit/vision/text-recognition/v2}.
+Accessed: Oct. 20, 2026.
+
+\bibitem{b6} NFC Forum, ``NFC Data Exchange Format (NDEF) Technical
+Specification,'' NFC Forum, Wakefield, MA, USA.
+
+\bibitem{b7} NXP Semiconductors, ``NTAG213/215/216 -- NFC Forum Type~2 Tag
+compliant IC with 144/504/888 bytes user memory,'' Product data sheet.
+
+\bibitem{b8} Android Developers, ``Android Keystore system.'' [Online].
+Available: \url{https://developer.android.com/privacy-and-security/keystore}.
+Accessed: Oct. 20, 2026.
+
+\bibitem{b9} H. B\"{o}ck, A. Zauner, S. Devlin, J. Somorovsky, and
+P. Jovanovic, ``Nonce-disrespecting adversaries: Practical forgery attacks on
+GCM in TLS,'' in \emph{Proc. 10th USENIX Workshop on Offensive Technologies
+(WOOT)}, 2016.
+
+\bibitem{b10} A. Biryukov, D. Dinu, D. Khovratovich, and S. Josefsson,
+``Argon2 memory-hard function for password hashing and proof-of-work
+applications,'' RFC 9106, Internet Engineering Task Force, Sept. 2021.
+
+\bibitem{b11} OWASP Foundation, ``Password Storage Cheat Sheet.'' [Online].
+Available:
+\url{https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html}.
+Accessed: Oct. 20, 2026.
+
+\bibitem{b12} D. McGrew, ``An interface and algorithms for authenticated
+encryption,'' RFC 5116, Internet Engineering Task Force, Jan. 2008.
+
+% TODO: add 5-8 related-work papers on NFC/QR medical IDs, offline mHealth
+% records and emergency data access, found through IEEE Xplore or Google
+% Scholar, and discuss them in Section III. Do not cite a paper you haven't
+% opened and checked.
+
+\end{thebibliography}

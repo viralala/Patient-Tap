@@ -62,7 +62,8 @@ const Map<TagErrorCode, String> tagErrorCopy = <TagErrorCode, String>{
   TagErrorCode.tagFull: 'Tag is full. Deselect some categories and try again.',
   TagErrorCode.writeFailed: 'Write failed after 3 attempts. Try again.',
   TagErrorCode.notSetUp: "This tag hasn't been set up yet.",
-  TagErrorCode.payloadTooLarge: 'Selection exceeds the 504-byte tag limit.',
+  TagErrorCode.payloadTooLarge:
+      'Selection exceeds the $kTagLimitBytes-byte tag limit.',
   TagErrorCode.tampered:
       'Tag data is corrupted or tampered with and could not be verified.',
   TagErrorCode.notNdef:
@@ -260,7 +261,8 @@ class NfcService {
   // -------------------------------------------------------------------------
 
   /// Encrypt [plaintext] and write it to a physical tag. Resolves once the
-  /// card has been written; throws [TagError] with a user-facing message.
+  /// card has been written and returns the NDEF bytes it took; throws
+  /// [TagError] with a user-facing message.
   ///
   /// The write is read back and compared before it counts as done, so a card
   /// pulled away half-written is caught and simply re-tapped.
@@ -270,13 +272,12 @@ class NfcService {
   }) async {
     final String b64 = await CryptoService.encryptBytes(plaintext);
 
-    // Budget against the encrypted binary size, not the base64 expansion.
-    final int binLen = base64.decode(b64).length;
-    if (binLen > kTagLimitBytes) {
+    // Budget against the bytes actually written: the base64 text plus the
+    // record header, not the raw encrypted size.
+    final NdefMessage message = _buildMessage(b64);
+    if (message.byteLength > kTagLimitBytes) {
       throw const TagError(TagErrorCode.payloadTooLarge);
     }
-
-    final NdefMessage message = _buildMessage(b64);
 
     await _withTag<void>(onProgress: onProgress,
         lostCode: TagErrorCode.writeFailed, (NfcTag tag) async {
@@ -316,7 +317,7 @@ class NfcService {
     // Mirror locally so the app can show "tag synced" and Responder mode has a
     // fallback when the card isn't at hand.
     await LocalStore.writeTagRaw(b64);
-    return binLen;
+    return message.byteLength;
   }
 
   // -------------------------------------------------------------------------

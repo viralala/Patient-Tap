@@ -254,7 +254,8 @@ Razorpay webhook, is in **[`SETUP.md`](./SETUP.md)**.
 ## Provisioning NFC Cards
 
 Any **NTAG213 / NTAG215 / NTAG216** sticker or wristband works — NTAG215
-(504 usable bytes) is what the in-app payload budget meter assumes. No
+(504 bytes of user memory, 492 of them usable for the NDEF message) is what
+the in-app payload budget meter assumes. No
 special provisioning step is required: the app auto-formats a blank card
 the first time you write to it.
 

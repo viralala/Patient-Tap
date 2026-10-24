@@ -158,8 +158,11 @@ const String kPlatformLabel = 'Android';
 /// Android is the full read **and** write platform for NTAG215 (PRD §7).
 const bool kCanWriteTag = true;
 
-/// NTAG215 user memory — the hard ceiling for a tag payload.
-const int kTagLimitBytes = 504;
+/// Largest NDEF message an NTAG215 can hold — the ceiling for a tag write.
+/// The chip has 504 bytes of user memory, but its capability container
+/// declares a 496-byte NDEF data area, and the NDEF TLV wrapper takes 4 of
+/// those (1 tag byte + 3-byte length once the message passes 254 bytes).
+const int kTagLimitBytes = 492;
 
 /// MIME type of the Patient-Tap NDEF record written to the card.
 const String kTagMimeType = 'application/x-patient-tap';
