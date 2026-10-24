@@ -4,6 +4,9 @@
 // .chip .field .section-title .divider
 // ============================================================================
 
+import 'dart:typed_data';
+import 'dart:ui' show PointMode;
+
 import 'package:flutter/material.dart';
 
 import '../../theme/tokens.dart';
@@ -846,42 +849,63 @@ class Avatar extends StatelessWidget {
 
 /// The film-grain overlay that sits above everything and never intercepts
 /// touches — it's what stops the dark surfaces reading as flat digital gray.
+///
+/// Painted once into its own layer and then reused: the RepaintBoundary keeps
+/// screen changes beneath it from re-running the noise loop, and the alpha
+/// lives in the paint colour, so there's no full-screen Opacity save-layer.
 class GrainOverlay extends StatelessWidget {
   const GrainOverlay({super.key, this.opacity = 0.05});
   final double opacity;
 
   @override
   Widget build(BuildContext context) => IgnorePointer(
-        child: Opacity(
-          opacity: opacity,
+        child: RepaintBoundary(
           child: CustomPaint(
-            painter: _GrainPainter(),
+            painter: _GrainPainter(opacity),
             size: Size.infinite,
+            isComplex: true,
+            willChange: false,
           ),
         ),
       );
 }
 
 class _GrainPainter extends CustomPainter {
-  static const int _seed = 0x9E3779B9;
+  _GrainPainter(this.opacity);
+  final double opacity;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Deterministic value noise — cheap, and stable across repaints so the
-    // grain never crawls.
-    final Paint p = Paint()..color = const Color(0xFFFFFFFF);
-    const double cell = 2;
+  static const int _seed = 0x9E3779B9;
+  static const double _cell = 2;
+
+  static Size? _pointsFor;
+  static Float32List? _points;
+
+  /// Deterministic value noise — stable across repaints so the grain never
+  /// crawls. Computed once per screen size, then drawn in a single call.
+  static Float32List _grain(Size size) {
+    if (_points != null && _pointsFor == size) return _points!;
+    final List<double> pts = <double>[];
     int h = _seed;
-    for (double y = 0; y < size.height; y += cell) {
-      for (double x = 0; x < size.width; x += cell) {
+    for (double y = 0; y < size.height; y += _cell) {
+      for (double x = 0; x < size.width; x += _cell) {
         h = (h * 1664525 + 1013904223) & 0x7FFFFFFF;
-        if ((h >> 8) % 5 == 0) {
-          canvas.drawRect(Rect.fromLTWH(x, y, cell, cell), p);
-        }
+        if ((h >> 8) % 5 == 0) pts..add(x + 1)..add(y + 1);
       }
     }
+    _pointsFor = size;
+    return _points = Float32List.fromList(pts);
   }
 
   @override
-  bool shouldRepaint(covariant _GrainPainter oldDelegate) => false;
+  void paint(Canvas canvas, Size size) {
+    final Paint p = Paint()
+      ..color = Color.fromRGBO(255, 255, 255, opacity)
+      ..strokeWidth = _cell
+      ..strokeCap = StrokeCap.square;
+    canvas.drawRawPoints(PointMode.points, _grain(size), p);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GrainPainter oldDelegate) =>
+      oldDelegate.opacity != opacity;
 }

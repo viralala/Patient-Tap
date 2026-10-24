@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "admin:hash": "node scripts/admin-hash.mjs",
     "audit:prod": "npm audit --omit=dev --audit-level=moderate"
   },
   "dependencies": {

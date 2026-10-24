@@ -1,5 +1,6 @@
-// Gate 1 — Google sign-in. Required for patient features; the responder
-// emergency path deliberately bypasses it (life-safety, PRD §6.1).
+// Gate 1 — Google sign-in, or an offline profile that skips it. Cloud
+// features need the account; everything on-device works either way. The
+// responder emergency path bypasses this gate entirely (life-safety, PRD §6.1).
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,15 +21,20 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   bool _busy = false;
 
+  /// Why the last Google attempt failed, shown inline next to the offline
+  /// option so a broken sign-in is never a dead end.
+  String? _error;
+
   Future<void> _go() async {
     final AppState app = context.read<AppState>();
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
     try {
       await app.signIn();
     } catch (e) {
-      if (mounted) {
-        app.showToast(_friendly(e), icon: Ico.x, iconColor: C.danger);
-      }
+      if (mounted) setState(() => _error = _friendly(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -41,6 +47,12 @@ class _SignInScreenState extends State<SignInScreen> {
     }
     if (s.contains('GOOGLE_SERVER_CLIENT_ID')) {
       return 'Google sign-in is not configured yet';
+    }
+    // Wrong SHA-1 / client ID in Google Cloud — the most common real failure.
+    if (s.contains('clientConfigurationError') ||
+        s.contains('providerConfigurationError') ||
+        s.contains('DEVELOPER_ERROR')) {
+      return "Google sign-in isn't set up for this build";
     }
     return 'Sign-in failed — check your connection';
   }
@@ -122,6 +134,26 @@ class _SignInScreenState extends State<SignInScreen> {
 
             // ---- Google ----
             _GoogleButton(busy: _busy, onTap: _busy ? null : _go),
+
+            if (_error != null) ...<Widget>[
+              const SizedBox(height: 10),
+              Text(
+                '$_error. You can continue without an account and sign in '
+                'later from Settings.',
+                textAlign: TextAlign.center,
+                style: T.captionMuted
+                    .copyWith(fontSize: 12, height: 1.5, color: C.danger),
+              ),
+            ],
+
+            // ---- No account ----
+            const SizedBox(height: 10),
+            Btn(
+              label: 'Continue without an account',
+              kind: BtnKind.secondary,
+              icon: Ico.lock,
+              onTap: _busy ? null : app.continueOffline,
+            ),
 
             if (!app.isLive) ...<Widget>[
               const SizedBox(height: 10),

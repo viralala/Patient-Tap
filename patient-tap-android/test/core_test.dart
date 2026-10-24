@@ -1,16 +1,19 @@
 // Unit tests for the security- and safety-critical logic: the crypto wire
-// format, the tag payload round trip, and the drug conflict checker.
+// format, the tag payload round trip, the drug conflict checker, and the
+// offline-profile session that lets people in without Google.
 
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ndef_record/ndef_record.dart';
+import 'package:patient_tap/backend/backend_service.dart';
 import 'package:patient_tap/config/app_config.dart';
 import 'package:patient_tap/core/conflict_checker.dart';
 import 'package:patient_tap/core/crypto_service.dart';
 import 'package:patient_tap/core/local_store.dart';
 import 'package:patient_tap/models/patient_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('CryptoService', () {
@@ -212,6 +215,37 @@ void main() {
     test('treats an empty drug name as a no-op', () {
       expect(checkConflict(p, '   ').level, ConflictLevel.ok);
       expect(checkConflict(p, '   ').title, isEmpty);
+    });
+  });
+
+  group('Offline profile (no Google)', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      await LocalStore.init();
+    });
+
+    test('starts with no session', () async {
+      expect(await BackendService.getSession(), isNull);
+    });
+
+    test('persists across restarts and is marked local', () async {
+      await BackendService.startLocalSession();
+      final AppSession? s = await BackendService.getSession();
+      expect(s, isNotNull);
+      expect(s!.isLocal, isTrue);
+    });
+
+    test('sign-out clears it', () async {
+      await BackendService.startLocalSession();
+      await BackendService.signOut();
+      expect(await BackendService.getSession(), isNull);
+    });
+
+    test('a real (demo) account wins over the offline profile', () async {
+      await BackendService.startLocalSession();
+      await BackendService.signInWithGoogle(); // demo mode: local account
+      final AppSession? s = await BackendService.getSession();
+      expect(s!.isLocal, isFalse);
     });
   });
 }

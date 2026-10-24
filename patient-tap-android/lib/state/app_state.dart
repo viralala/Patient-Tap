@@ -43,6 +43,10 @@ class AppState extends ChangeNotifier {
   AppSession? _session;
   AppSession? get session => _session;
 
+  /// Signed in with a real account (not an offline profile) — the gate for
+  /// every cloud feature: backup, alerts, billing, share links.
+  bool get hasAccount => _session != null && !_session!.isLocal;
+
   bool _unlocked = false;
   bool get unlocked => _unlocked;
 
@@ -58,8 +62,9 @@ class AppState extends ChangeNotifier {
   AppRoute get route => _route;
 
   // ---- Toast ---------------------------------------------------------------
-  ToastMessage? _toast;
-  ToastMessage? get toast => _toast;
+  // Kept out of notifyListeners(): a toast only repaints the toast layer, not
+  // every screen that watches AppState.
+  final ValueNotifier<ToastMessage?> toast = ValueNotifier<ToastMessage?>(null);
   Timer? _toastTimer;
 
   // ---- Backend -------------------------------------------------------------
@@ -96,9 +101,12 @@ class AppState extends ChangeNotifier {
     _authReady = true;
     notifyListeners();
 
-    if (_session != null) unawaited(refreshSubscription());
+    if (hasAccount) unawaited(refreshSubscription());
 
     _authSub = BackendService.authChanges().listen((AppSession? s) {
+      // The account stream knows nothing about offline profiles; a "no
+      // account" event must not throw an offline user back to sign-in.
+      if (s == null && (_session?.isLocal ?? false)) return;
       _session = s;
       _authReady = true;
       if (s == null) {
@@ -116,6 +124,7 @@ class AppState extends ChangeNotifier {
     _authSub?.cancel();
     _toastTimer?.cancel();
     _backupTimer?.cancel();
+    toast.dispose();
     super.dispose();
   }
 
@@ -130,7 +139,7 @@ class AppState extends ChangeNotifier {
     await ReminderService.rescheduleAll(p.medications);
 
     // Opportunistic, debounced E2E cloud backup.
-    if (_cloudBackup && _session != null) {
+    if (_cloudBackup && hasAccount) {
       _backupTimer?.cancel();
       _backupTimer = Timer(const Duration(milliseconds: 1500), () async {
         await BackendService.saveProfileBackup(p);
@@ -181,11 +190,21 @@ class AppState extends ChangeNotifier {
   Future<void> signIn() async {
     final AppSession? s = await BackendService.signInWithGoogle();
     if (s != null) {
+      await LocalStore.setLocalSession(false);
       _session = s;
       _authReady = true;
       notifyListeners();
       unawaited(refreshSubscription());
     }
+  }
+
+  /// Skip Google entirely: the profile, PIN, NFC and reminders all work
+  /// on-device. Cloud features unlock later by signing in from Settings.
+  Future<void> continueOffline() async {
+    _session = await BackendService.startLocalSession();
+    _authReady = true;
+    _subscription = const SubscriptionInfo();
+    notifyListeners();
   }
 
   Future<void> signOutApp() async {
@@ -216,12 +235,10 @@ class AppState extends ChangeNotifier {
   // Toast
   // ==========================================================================
   void showToast(String message, {String? icon, Object? iconColor}) {
-    _toast = ToastMessage(message, icon: icon, iconColor: iconColor);
-    notifyListeners();
+    toast.value = ToastMessage(message, icon: icon, iconColor: iconColor);
     _toastTimer?.cancel();
     _toastTimer = Timer(const Duration(milliseconds: 2600), () {
-      _toast = null;
-      notifyListeners();
+      toast.value = null;
     });
   }
 
@@ -229,6 +246,7 @@ class AppState extends ChangeNotifier {
   // Backend-derived state
   // ==========================================================================
   Future<void> refreshSubscription() async {
+    if (!hasAccount) return;
     try {
       _subscription = await BackendService.getSubscription();
       notifyListeners();
@@ -241,14 +259,14 @@ class AppState extends ChangeNotifier {
     _cloudBackup = v;
     notifyListeners();
     await LocalStore.setCloudBackup(v);
-    if (v && _session != null) await backupNow();
+    if (v && hasAccount) await backupNow();
   }
 
   Future<void> setAlertsEnabled(bool v) async {
     _alertsEnabled = v;
     notifyListeners();
     await LocalStore.setAlertsEnabled(v);
-    if (v && _session != null) {
+    if (v && hasAccount) {
       await BackendService.saveEmergencyContacts(_profile.emergencyContacts);
     }
   }

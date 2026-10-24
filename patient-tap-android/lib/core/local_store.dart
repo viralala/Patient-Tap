@@ -24,6 +24,7 @@ class LocalStore {
   static const String _kCloudPref = 'patienttap.pref.cloudBackup';
   static const String _kAlertsPref = 'patienttap.pref.alerts';
   static const String _kDemoSession = 'patienttap.demo.session';
+  static const String _kLocalSession = 'patienttap.local.session';
   static const String _kDemoTier = 'patienttap.demo.tier';
   static const String _kDemoBackup = 'patienttap.demo.backup';
   static const String _kDemoScans = 'patienttap.demo.scans';
@@ -90,6 +91,11 @@ class LocalStore {
   static bool get alertsEnabled => _prefs.getBool(_kAlertsPref) ?? false;
   static Future<void> setAlertsEnabled(bool v) =>
       _prefs.setBool(_kAlertsPref, v);
+
+  // ---- Offline profile (no Google account) ---------------------------------
+  static bool get localSession => _prefs.getBool(_kLocalSession) ?? false;
+  static Future<void> setLocalSession(bool v) =>
+      v ? _prefs.setBool(_kLocalSession, true) : _prefs.remove(_kLocalSession);
 
   // ---- Demo-mode backend mirrors ------------------------------------------
   static String? get demoSession => _prefs.getString(_kDemoSession);

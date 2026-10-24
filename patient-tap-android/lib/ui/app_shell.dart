@@ -3,7 +3,7 @@
 //
 //   responder-only  →  Responder (no login, no PIN — life-safety escape hatch)
 //   !authReady      →  splash
-//   !session        →  SignIn        (Gate 1: Google)
+//   !session        →  SignIn        (Gate 1: Google, or an offline profile)
 //   !unlocked       →  Lock          (Gate 2: local PIN / biometrics)
 //   otherwise       →  tabs + routes
 //
@@ -45,16 +45,21 @@ class AppShell extends StatelessWidget {
           Positioned.fill(child: _body(app)),
           // Grain sits above everything and never intercepts touches.
           const Positioned.fill(child: w.GrainOverlay()),
-          if (app.toast != null)
-            Positioned.fill(
-              child: IgnorePointer(
-                child: f.Toast(
-                  message: app.toast!.message,
-                  icon: app.toast!.icon,
-                  iconColor: app.toast!.iconColor as Color?,
-                ),
-              ),
+          // Listens on its own, so a toast never rebuilds the screens.
+          Positioned.fill(
+            child: ValueListenableBuilder<ToastMessage?>(
+              valueListenable: app.toast,
+              builder: (BuildContext context, ToastMessage? t, _) => t == null
+                  ? const SizedBox.shrink()
+                  : IgnorePointer(
+                      child: f.Toast(
+                        message: t.message,
+                        icon: t.icon,
+                        iconColor: t.iconColor as Color?,
+                      ),
+                    ),
             ),
+          ),
         ],
       ),
     );
@@ -95,7 +100,7 @@ class AppShell extends StatelessWidget {
       );
     }
 
-    // Gate 1 — Google sign-in (required for patient features).
+    // Gate 1 — Google sign-in, or "continue without an account".
     if (app.session == null) return const SignInScreen();
 
     // Gate 2 — local PIN (fast on-device re-lock; defence in depth).
